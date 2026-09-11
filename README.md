@@ -1,2 +1,0 @@
-# aplicaciones-computacionales-en-negocios
- 
