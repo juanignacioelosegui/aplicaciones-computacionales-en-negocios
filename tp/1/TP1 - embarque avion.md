@@ -19,6 +19,7 @@ Un avión de 25 filas, 4 asientos por fila (2 izquierda, 2 derecha), pasillo cen
 Pide comparar 4 políticas de embarque: Back-to-Front, Random, WILMA (Window-Middle-Aisle), Steffen Method — investigar en qué consisten.
 
 Para cada política, estimar vía Monte Carlo (con suficientes corridas y error de estimación reportado):
+
 - Tiempo esperado de llenado del avión.
 - Desvío estándar del tiempo de llenado.
 - Cómo cambian esas respuestas si p=1 (todos con carry-on) o p=0 (nadie).
@@ -53,8 +54,8 @@ Para cada política, estimar vía Monte Carlo (con suficientes corridas y error 
 
 - **Back-to-Front:** se llena de atrás hacia adelante, en bloques/secciones (ej. últimas 5 filas primero), random dentro de cada bloque. Falta decidir cuántos bloques usar.
 - **Random:** sin ningún orden — cada pasajero sube en cualquier momento, sin importar fila ni asiento.
-- **WILMA (Window-Middle-Aisle):** por tipo de asiento en TODO el avión a la vez (no por fila): primero todos los de ventanilla, después todos los del medio, después todos los de pasillo. En este TP, al no haber asiento del medio, se reduce a: primero todos los de ventanilla, después todos los de pasillo.
-- **Steffen Method:** ventanilla filas impares → ventanilla filas pares → medio filas impares → medio filas pares → pasillo filas impares → pasillo filas pares (a veces de a 2 personas en simultáneo, una por lado del pasillo). Combina la ventaja de WILMA con espaciado extra alternando pares/impares. En el experimento real de Steffen resultó 2x más rápido que Back-to-Front. En este TP (sin asiento del medio) el algoritmo se simplifica a 4 grupos en vez de 6: ventanilla impar → ventanilla par → pasillo impar → pasillo par.
+- **WILMA (Window-Middle-Aisle):** por tipo de asiento en TODO el avión a la vez (no por fila): primero todos los de ventanilla, después todos los de pasillo.
+- **Steffen Method:** ventanilla filas impares → ventanilla filas pares → pasillo filas impares → pasillo filas pares (a veces de a 2 personas en simultáneo, una por lado del pasillo). Combina la ventaja de WILMA con espaciado extra alternando pares/impares. En el experimento real de Steffen resultó 2x más rápido que Back-to-Front. 
 
 Fuentes: [Steffen Boarding Method (Wikipedia)](https://en.wikipedia.org/wiki/Steffen_Boarding_Method) · [The best way to board an airplane, according to science (Popular Science)](https://www.popsci.com/technology/best-way-to-board-an-airplane-according-to-science/) · [The Math Behind United Airlines' Window To Aisle Boarding (Forbes)](https://www.forbes.com/sites/marisagarcia/2023/10/23/united-airlines-window-to-aisle-boarding-how-much-does-it-save/)
 
