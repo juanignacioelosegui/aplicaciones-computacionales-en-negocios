@@ -1,0 +1,208 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{xcolor}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{listings}
+\usepackage{tikz}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=blue!50!black, urlcolor=blue!50!black}
+
+% --- Estilo de código Python ---
+\definecolor{codegray}{gray}{0.95}
+\definecolor{keyword}{RGB}{0,0,180}
+\definecolor{comment}{RGB}{0,128,0}
+\definecolor{string}{RGB}{163,21,21}
+
+\lstset{
+  language=Python,
+  backgroundcolor=\color{codegray},
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{keyword}\bfseries,
+  commentstyle=\color{comment}\itshape,
+  stringstyle=\color{string},
+  showstringspaces=false,
+  breaklines=true,
+  frame=single,
+  framesep=5pt,
+  rulecolor=\color{gray!40},
+  literate={í}{{\'i}}1 {á}{{\'a}}1 {é}{{\'e}}1 {ó}{{\'o}}1 {ú}{{\'u}}1 {ñ}{{\~n}}1 {Á}{{\'A}}1
+}
+
+\title{\textbf{Modelado matricial del embarque de un avión}}
+\author{TP1 --- Aplicaciones Computacionales en Negocios}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Idea general}
+
+Simulamos el embarque de un avión de \textbf{25 filas} y \textbf{4 asientos por fila}
+(100 pasajeros). Queremos medir cuánto tarda en llenarse según el \emph{orden de embarque}
+(Random, Back-to-Front, WILMA, Steffen).
+
+El modelo tiene dos piezas que conviene no confundir:
+
+\begin{itemize}[leftmargin=1.4em]
+  \item \textbf{Fuente de verdad:} los objetos \texttt{Pasajero}. Cada pasajero guarda
+        sus atributos fijos y su \emph{historia} segundo a segundo.
+  \item \textbf{Vista derivada:} la \texttt{matriz} del avión. Es una \emph{foto} del estado
+        físico en el instante actual, recalculada en cada paso de tiempo.
+\end{itemize}
+
+La matriz \textbf{no} reemplaza a la clase \texttt{Pasajero}: la complementa. Sirve para
+las preguntas \emph{espaciales} (¿quién bloquea a quién?, ¿cuántos hay a bordo?), que en
+una lista de objetos serían incómodas de responder.
+
+\section{Por qué no alcanza una sola matriz}
+
+Una matriz de identificadores solo guarda \emph{posición}. Pero un pasajero carga más
+información, y buena parte no es propia de una celda sino del pasajero:
+
+\begin{center}
+\begin{tabular}{l c}
+\toprule
+\textbf{Dato} & \textbf{¿Cabe en una matriz de \texttt{id}?} \\
+\midrule
+Posición actual & sí \\
+Estado (camina / guarda / se sienta / \dots) & no (haría falta otra matriz) \\
+Carry-on (0/1) & no --- es constante del pasajero \\
+Velocidad, asiento destino & no --- ídem \\
+Temporizador de la acción en curso & no \\
+Historia por segundo & no --- la matriz es solo \emph{ahora} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Conclusión: atributos e historia viven en \texttt{Pasajero}; la geometría del instante
+vive en la \texttt{matriz} derivada. Al escribir la posición en un solo lugar, es
+imposible que las dos representaciones se contradigan.
+
+\section{La grilla}
+
+\[
+\texttt{matriz} \in \mathbb{Z}^{25 \times 5},
+\qquad
+\texttt{matriz[f, c]} =
+\begin{cases}
+0 & \text{celda vacía} \\
+\texttt{id} > 0 & \text{pasajero ubicado en esa celda}
+\end{cases}
+\]
+
+Como cada \texttt{id} es único y aparece en \textbf{una sola} celda mientras está a bordo,
+la matriz dice al instante dónde está cada uno.
+
+\subsection*{Ejes}
+
+\textbf{Filas} (0--24 en NumPy): las 25 filas físicas. El avión numera de 1 a 25, así que
+\[
+\texttt{fila\_matriz} = \texttt{fila\_avion} - 1.
+\]
+
+\textbf{Columnas} (0--4): los cuatro asientos más el pasillo central.
+
+\begin{center}
+\begin{tabular}{c c c c c}
+\toprule
+col 0 & col 1 & col 2 & col 3 & col 4 \\
+ventana izq. & pasillo izq. & \textbf{PASILLO} & pasillo der. & ventana der. \\
+lado $-2$ & lado $-1$ & (se camina) & lado $1$ & lado $2$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+La \textbf{columna 2} es el pasillo central: el único lugar donde un pasajero
+\emph{camina}. Los sentados ocupan las columnas 0, 1, 3, 4.
+
+\subsection*{Mapa lado $\rightarrow$ columna}
+
+\begin{lstlisting}
+def lado_a_col(lado):
+    return {-2: 0, -1: 1, 1: 3, 2: 4}[lado]
+\end{lstlisting}
+
+\section{Ejemplo de foto}
+
+En el instante $t$, el pasajero 7 ya está sentado en la fila 2, lado $-1$ (col 1),
+y el pasajero 12 camina por el pasillo a la altura de la fila 2 (col 2):
+
+\begin{center}
+\begin{tabular}{r|c|c|c|c|c|}
+\multicolumn{1}{r}{} & \multicolumn{1}{c}{\scriptsize c0} & \multicolumn{1}{c}{\scriptsize c1} & \multicolumn{1}{c}{\scriptsize c2} & \multicolumn{1}{c}{\scriptsize c3} & \multicolumn{1}{c}{\scriptsize c4} \\
+\cline{2-6}
+f0 & 0 & 0 & 0 & 0 & 0 \\ \cline{2-6}
+f1 & 0 & \textbf{7} & \textbf{12} & 0 & 0 \\ \cline{2-6}
+f2 & 0 & 0 & 0 & 0 & 0 \\ \cline{2-6}
+\multicolumn{6}{c}{\scriptsize $\vdots$} \\
+\end{tabular}
+\end{center}
+
+\section{La matriz como vista derivada}
+
+La verdad es \texttt{pasajero.ubicacion[-1]} (la posición actual de cada uno). En cada
+paso de tiempo se \textbf{borra} la matriz y se \textbf{reconstruye} leyendo a los
+pasajeros:
+
+\begin{lstlisting}
+def actualizar_matriz(self):
+    self.matriz[:] = 0                    # borro la foto anterior
+    for p in self.pasajeros:
+        fila, col = p.ubicacion[-1]       # donde esta ahora
+        if fila >= 0:                     # -1 = fuera del avion, no se dibuja
+            self.matriz[fila, col] = p.id
+\end{lstlisting}
+
+\section{Para qué sirve la matriz}
+
+\begin{description}[leftmargin=1.4em, style=nextline]
+  \item[Detectar bloqueos] El pasillo (col 2) admite un solo pasajero por celda.
+        Para avanzar de la fila $f$ a la $f{+}1$:
+        \begin{lstlisting}
+if self.matriz[fila + 1, 2] == 0:   # pasillo libre adelante
+    # avanzo
+else:
+    # bloqueado: espero (estado 2)
+        \end{lstlisting}
+  \item[Contar a bordo] Sin recorrer la lista de pasajeros:
+        \begin{lstlisting}
+np.count_nonzero(self.matriz > 0)
+        \end{lstlisting}
+  \item[Visualizar] Imprimir la matriz en cada paso da una animación del embarque.
+\end{description}
+
+\section{El cuello de botella}
+
+Toda la demora del embarque nace en la columna 2. Un pasajero que guarda su carry-on en
+la fila 10 \emph{tapa} a todos los que vienen atrás: ellos quedan en estado
+\emph{bloqueado} hasta que el de adelante se siente y libere el pasillo. La representación
+matricial hace ese choque explícito y trivial de chequear: basta mirar la celda de
+adelante en la col 2.
+
+\section{Cómo encaja con la simulación}
+
+El orden de embarque (la salida de \texttt{orden\_random}, \texttt{orden\_steffen}, etc.)
+es la \emph{cola}: define quién sube primero. El reloj avanza de a un segundo:
+
+\begin{lstlisting}
+t = 0
+while not avion.esta_lleno():
+    for p in pasajeros:            # en el orden de la cola
+        p.actualizar_estado(avion, t)   # appendea 1 valor a ubicacion y estado
+    avion.actualizar_matriz()      # recalculo la foto
+    t += 1
+\end{lstlisting}
+
+Como cada \texttt{actualizar\_estado} agrega exactamente un valor por segundo, todas las
+listas \texttt{ubicacion} y \texttt{estado} terminan con largo $t$: queda la película
+completa del embarque, segundo a segundo, lista para medir tiempos o animar.
+
+\end{document}
