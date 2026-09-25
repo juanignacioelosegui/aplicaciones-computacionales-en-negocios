@@ -1,0 +1,54 @@
+\documentclass[11pt]{article}
+\input{preambulo}
+
+\begin{document}
+\encabezado{Modelo 1}
+
+% ------------------------------------------------------------------
+\noindent\textbf{1)} A partir de la simulación de un modelo estocástico obtengo $N$ observaciones independientes de una variable $Y$. Con los primeros $2000$ caminos estimo una media de $150$ y una desviación estándar de $60$.
+
+\medskip
+\pts{20} ¿Cuántas observaciones (caminos) debo simular en total para que el error de estimación de la media de $Y$ sea menor a $0.4$? Explicá qué resultado teórico usás y cómo escala el error con el número de caminos.
+
+\espacio{4.5cm}
+
+\pts{10} Si en lugar de estimar la media quiero estimar la probabilidad de un evento raro con $\hat p \ll 1$, ¿por qué se vuelve más difícil (necesito más caminos) alcanzar un error relativo chico? Justificá con la fórmula del error de un estimador de probabilidad.
+
+\espacio{4cm}
+
+% ------------------------------------------------------------------
+\noindent\textbf{2)} Considero dos procesos que evolucionan simultáneamente en el tiempo:
+\[
+X_{i+1} = X_i + \mu\,\Delta, \qquad X_0 = 5
+\]
+\[
+Y_{i+1} = Y_i - \kappa\,(Y_i - X_i)\,\Delta + \sigma\sqrt{\Delta}\,Z_i, \qquad Y_0 = 0
+\]
+donde los $Z_i$ son shocks normales i.i.d.\ con media cero y desviación estándar $1$. Los parámetros son $\Delta = 1$, $\mu = 0.5$, $\sigma = 1$.
+
+\medskip
+\pts{10} Hacé un gráfico esquemático con $3$ caminos típicos de $X$ e $Y$ entre $i=0$ e $i=10$ si $\kappa = 0$. Describí en palabras el comportamiento de $Y$ respecto de $X$.
+
+\espacio{5cm}
+
+\pts{15} Hacé un gráfico esquemático con $3$ caminos típicos de $X$ e $Y$ entre $i=0$ e $i=10$ si $\kappa = 1$. ¿Qué rol cumple el término $-\kappa(Y_i - X_i)\Delta$? ¿Qué pasa cuando $\kappa$ es grande?
+
+\espacio{5cm}
+
+% ------------------------------------------------------------------
+\noindent\textbf{3)} Quiero generar muestras de clientes de un banco, caracterizados por su segmento de riesgo y por el monto de un préstamo solicitado. La probabilidad de que un cliente pertenezca al segmento $j$ es $p_j$, para $j = 0,1,2,3,4$ (las probabilidades suman $1$). El monto solicitado por un cliente del segmento $j$ es aleatorio y uniforme entre $j\cdot 20000$ y $(j+1)\cdot 20000$ dólares. Suponé que tenés disponible una función para generar variables uniformes $[0,1]$.
+
+\medskip
+\pts{25} Proponé un algoritmo de simulación para generar el segmento y el monto solicitado de un cliente. Describí de manera precisa (pseudocódigo y palabras) cómo generás cada una de las variables aleatorias necesarias.
+
+\espacio{6cm}
+
+\pts{10} Describí con precisión cómo estimar, vía la simulación de un $N$ grande de clientes, el valor esperado del monto solicitado por los clientes de los segmentos $0$ y $1$ únicamente.
+
+\espacio{4.5cm}
+
+\pts{10} Describí con precisión cómo calcular el error de tu estimador a partir de la muestra simulada, y qué nuevo tamaño de muestra necesitarías si quisieras reducir ese error a la mitad.
+
+\espacio{4cm}
+
+\end{document}

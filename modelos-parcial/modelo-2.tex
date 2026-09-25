@@ -1,0 +1,55 @@
+\documentclass[11pt]{article}
+\input{preambulo}
+
+\begin{document}
+\encabezado{Modelo 2}
+
+% ------------------------------------------------------------------
+\noindent\textbf{1)} Para cada uno de los siguientes procesos estocásticos, respondé: ¿qué rol cumple cada uno de sus parámetros? ¿Cómo es el gráfico de su evolución temporal si $\sigma = 0$?
+
+\medskip
+\pts{15} Random walk aritmético con drift:
+\[
+S_{i+1} = S_i + \mu\,\Delta + \sigma\sqrt{\Delta}\,Z_{i+1}
+\]
+¿Cómo es su distribución terminal para un horizonte de $N$ pasos ($N$ grande) si $\Delta \ll 1$? Hacé un gráfico (no la fórmula) de esa distribución.
+
+\espacio{4.5cm}
+
+\pts{15} Random walk geométrico (multiplicativo):
+\[
+S_{i+1} = S_i\left(1 + \mu\,\Delta + \sigma\sqrt{\Delta}\,Z_{i+1}\right)
+\]
+¿Por qué este modelo es más apropiado que el aritmético para el precio de una acción? ¿Qué forma tiene su distribución terminal?
+
+\espacio{4.5cm}
+
+\pts{10} Proceso con reversión a la media:
+\[
+S_{i+1} = S_i + \kappa\,(\theta - S_i)\,\Delta + \sigma\sqrt{\Delta}\,Z_{i+1}
+\]
+¿Por qué decimos que este proceso tiene reversión a la media? ¿Qué sucede para valores de $S_i$ por encima y por debajo de $\theta$? ¿Cuál es la distribución de largo plazo si $\mu = 0$ y $\sigma \neq 0$?
+
+\espacio{4.5cm}
+
+% ------------------------------------------------------------------
+\noindent\textbf{2)} Un call center recibe llamados que llegan según un proceso de Poisson con tasa constante $\lambda$ llamados por minuto. Suponé que tenés disponible una función para generar variables uniformes $[0,1]$.
+
+\medskip
+\pts{15} Explicá de manera precisa (pseudocódigo y palabras) \emph{dos} algoritmos alternativos para simular la secuencia de llamados durante una hora: (a) uno exacto, sampleando los tiempos entre eventos; (b) uno aproximado, discretizando el tiempo en pasos chicos. ¿Qué condición debe cumplir el tamaño del paso $d$ en el método aproximado y por qué?
+
+\espacio{6.5cm}
+
+\pts{10} Supongamos ahora que la tasa depende de la hora del día, $\lambda(t)$, con $\lambda(t) < \lambda_{\max}$. ¿Cómo modificás el algoritmo aproximado para tener en cuenta esto?
+
+\espacio{4cm}
+
+% ------------------------------------------------------------------
+\noindent\textbf{3)} Con el random walk geométrico ya calibrado del punto 1, con parámetros $\mu$ y $\sigma$ diarios y $\Delta$ correspondiente a un día de trading, quiero valuar el riesgo de una acción a un horizonte de un mes ($\sim 21$ días de trading).
+
+\medskip
+\pts{20} Describí con precisión (pseudocódigo y palabras) cómo estimarías vía simulación de Monte Carlo: la media $M$ del precio terminal, su desviación estándar $D$, y la probabilidad $P$ de que el precio caiga más de un $10\%$ respecto de hoy. Indicá cómo acompañarías cada estimador con su error estándar.
+
+\espacio{7cm}
+
+\end{document}
