@@ -1,0 +1,429 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+
+\geometry{margin=2.5cm}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{Aplicaciones Computacionales en Negocios -- UTDT}
+\lhead{Ejercicios adicionales}
+\cfoot{\thepage}
+
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.6em}{}
+\titlespacing*{\section}{0pt}{1.6em}{0.8em}
+
+\newcommand{\ejercicio}[1]{\par\medskip\noindent\textbf{#1}\par\nopagebreak\smallskip}
+
+\newcommand{\pts}[1]{\hfill\textit{[#1]}\par}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+
+\title{\textbf{Ejercicios adicionales para el parcial}\\[0.3em]
+\large Aplicaciones Computacionales en Negocios -- UTDT}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{fancy}
+
+\noindent
+Estos ejercicios cubren los temas que aparecen en la intersecci\'on entre los
+par\-ciales anteriores (\emph{Examen 1}, 2024 y 2025) y las gu\'ias pr\'acticas 1,
+2 y 3. Cada secci\'on corresponde a un tema del programa de la primera parte de la
+materia. No se incluyen respuestas: el objetivo es la pr\'actica previa al examen.
+
+\medskip
+\noindent\textbf{Temas cubiertos:}
+\begin{enumerate}[label=\arabic*.,leftmargin=2em,itemsep=1pt]
+  \item Probabilidad: variables aleatorias, esperanza, varianza y desigualdad de Chebyshev.
+  \item Estimaci\'on por Monte Carlo: media, error est\'andar y tama\~no de muestra.
+  \item Generaci\'on de variables aleatorias en una computadora.
+  \item Procesos estoc\'asticos y rol de los par\'ametros.
+  \item Simulaci\'on secuencial de caminos (algoritmos y pseudoc\'odigo).
+  \item Valuaci\'on por integraci\'on num\'erica y Monte Carlo.
+\end{enumerate}
+
+%=====================================================================
+\section{Probabilidad: variables aleatorias, esperanza, varianza y Chebyshev}
+%=====================================================================
+
+\ejercicio{Ejercicio 1.1 -- Variable discreta.}
+Una variable aleatoria discreta $X$ toma valores $\{0,1,2,3,4,5\}$ con
+probabilidades proporcionales a $(6-i)$, es decir $P[X=i]=c\,(6-i)$ para
+$i=0,\dots,5$ y alguna constante $c$.
+\begin{enumerate}[label=(\alph*)]
+  \item Hall\'a el valor de $c$.
+  \item Dibuj\'a la funci\'on de probabilidad y la funci\'on de distribuci\'on acumulada.
+  \item Calcul\'a $P[1\le X\le 3]$.
+  \item Calcul\'a $E[X]$ y $\mathrm{Var}[X]$.
+\end{enumerate}
+
+\ejercicio{Ejercicio 1.2 -- Variable continua.}
+Una variable aleatoria continua $X$ tiene densidad
+\[
+f(x)=c\,(1-x)\qquad\text{para } 0<x<1,
+\]
+y $f(x)=0$ fuera de ese intervalo.
+\begin{enumerate}[label=(\alph*)]
+  \item Determin\'a $c$.
+  \item Escrib\'i y dibuj\'a la funci\'on de distribuci\'on acumulada $F(x)$.
+  \item Calcul\'a $P[X>0.25]$ y $P[0.25<X<0.75]$.
+  \item Calcul\'a $E[X]$ y $\mathrm{Var}[X]$.
+\end{enumerate}
+
+\ejercicio{Ejercicio 1.3 -- Chebyshev.}
+El n\'umero de visitas diarias a un sitio de e-commerce es una variable aleatoria
+$X$ con media $\mu=5000$ visitas.
+\begin{enumerate}[label=(\alph*)]
+  \item Sin conocer la desviaci\'on est\'andar, \textquestiondown{}qu\'e se puede decir
+        sobre la probabilidad de observar un d\'ia con al menos $8000$ visitas?
+  \item Si adem\'as se sabe que la desviaci\'on est\'andar es $\sigma=800$ visitas,
+        \textquestiondown{}qu\'e cota ofrece la desigualdad de Chebyshev para la probabilidad de que
+        las visitas de un d\'ia est\'en entre $3400$ y $6600$?
+  \item \textquestiondown{}Para qu\'e intervalo centrado en la media garantiza Chebyshev una
+        probabilidad de al menos $0.95$?
+\end{enumerate}
+
+\ejercicio{Ejercicio 1.4 -- Independencia y confiabilidad.}
+Un sistema de pago procesa transacciones a trav\'es de servidores redundantes.
+El sistema funciona si al menos la mitad de los servidores est\'an operativos.
+Cada servidor funciona de manera independiente con probabilidad $p$.
+\begin{enumerate}[label=(\alph*)]
+  \item \textquestiondown{}Para qu\'e valores de $p$ es m\'as confiable un sistema de $3$ servidores
+        que uno de $5$?
+  \item Repet\'i el an\'alisis comparando $3$ servidores contra $7$.
+\end{enumerate}
+
+\ejercicio{Ejercicio 1.5 -- Tiempos de espera uniformes.}
+Un servicio de atenci\'on al cliente devuelve la llamada en un instante
+uniformemente distribuido entre las 9:00 y las 10:00. Si un cliente queda a la
+espera desde las 9:00:
+\begin{enumerate}[label=(\alph*)]
+  \item \textquestiondown{}Cu\'al es la probabilidad de que espere entre 10 y 25 minutos?
+  \item \textquestiondown{}Cu\'al es la probabilidad de que espere m\'as de 40 minutos?
+  \item \textquestiondown{}Cu\'al es el tiempo medio de espera y su desviaci\'on est\'andar?
+\end{enumerate}
+
+%=====================================================================
+\section{Estimaci\'on por Monte Carlo: media, error est\'andar y tama\~no de muestra}
+%=====================================================================
+
+\ejercicio{Ejercicio 2.1 -- Tama\~no de muestra.}
+A partir de la simulaci\'on de un modelo estoc\'astico se obtienen $500$
+observaciones independientes de una variable $X$. Los estimadores muestrales de
+la media y la desviaci\'on est\'andar resultan $120$ y $18$, respectivamente.
+\begin{enumerate}[label=(\alph*)]
+  \item \textquestiondown{}Cu\'al es el error de estimaci\'on (error est\'andar) de la media con estas
+        $500$ observaciones?
+  \item \textquestiondown{}Cu\'antas observaciones en total se deben tomar para que el error de
+        estimaci\'on de la media de $X$ sea $0.2$?
+  \item Si se quiere reducir el error a la d\'ecima parte del valor obtenido en (a),
+        \textquestiondown{}qu\'e tama\~no de muestra se necesita?
+\end{enumerate}
+
+\ejercicio{Ejercicio 2.2 -- Estimaci\'on de una probabilidad.}
+Se desea estimar, por simulaci\'on, la probabilidad $p=P[X>a]$ de cierto evento.
+Supon\'e que dispon\'es de una funci\'on que genera muestras i.i.d.\ de $X$.
+\begin{enumerate}[label=(\alph*)]
+  \item Describ\'i con precisi\'on (pseudoc\'odigo y palabras) c\'omo estimar\'ias $p$ a
+        partir de $M$ muestras.
+  \item Escrib\'i la f\'ormula del error de estimaci\'on de $\hat p$ en funci\'on de
+        $\hat p$ y $M$.
+  \item Si una corrida preliminar sugiere $\hat p\approx 0.05$, \textquestiondown{}cu\'antas muestras
+        se necesitan para que el error de estimaci\'on sea menor a $0.001$?
+\end{enumerate}
+
+\ejercicio{Ejercicio 2.3 -- Esperanza condicional sobre una subpoblaci\'on.}
+Se simulan $N$ individuos independientes; de cada uno se registra una variable de
+inter\'es $V$ y un atributo $A$ (por ejemplo, un grupo). Se desea estimar
+$E[V \mid A \text{ pertenece a cierto grupo}]$.
+\begin{enumerate}[label=(\alph*)]
+  \item Describ\'i con precisi\'on c\'omo estimar\'ias esa esperanza condicional a partir
+        de la muestra simulada.
+  \item Describ\'i c\'omo calcular\'ias el error de ese estimador a partir de la misma
+        muestra. \textquestiondown{}Qu\'e tama\~no efectivo de muestra entra en el c\'alculo del error?
+  \item \textquestiondown{}Qu\'e nuevo tama\~no de muestra total necesit\'as para reducir ese error a la
+        d\'ecima parte?
+\end{enumerate}
+
+\ejercicio{Ejercicio 2.4 -- Convergencia del estimador.}
+Para un mismo experimento de Monte Carlo se corre la simulaci\'on con
+$M=10^2$, $10^4$ y $10^6$ repeticiones independientes, estimando en cada caso una
+media, una desviaci\'on est\'andar y una probabilidad.
+\begin{enumerate}[label=(\alph*)]
+  \item \textquestiondown{}C\'omo esperar\'as que se comporten los tres estimadores a medida que crece $M$?
+  \item \textquestiondown{}C\'omo esperar\'as que se comporte el error de estimaci\'on de cada uno en
+        funci\'on de $M$? Justific\'a con la dependencia en $\sqrt{M}$.
+  \item \textquestiondown{}Qu\'e sentido tiene reportar un estimador sin su error de estimaci\'on?
+\end{enumerate}
+
+%=====================================================================
+\section{Generaci\'on de variables aleatorias en una computadora}
+%=====================================================================
+
+\ejercicio{Ejercicio 3.1 -- Variable discreta por transformada inversa.}
+Dispon\'es \'unicamente de una funci\'on que genera variables uniformes en $[0,1]$.
+Una variable $Y$ toma valores $\{-2,0,1,4\}$ con probabilidades
+$\{0.1,0.4,0.3,0.2\}$.
+\begin{enumerate}[label=(\alph*)]
+  \item Describ\'i con pseudoc\'odigo un algoritmo para generar una muestra de $Y$.
+  \item Generaliz\'a el algoritmo a una variable discreta con valores
+        $v_1,\dots,v_k$ y probabilidades $q_1,\dots,q_k$.
+\end{enumerate}
+
+\ejercicio{Ejercicio 3.2 -- Modelo mixto: categor\'ia y valor continuo.}
+Se quieren generar clientes caracterizados por un segmento y por su gasto mensual.
+La probabilidad de que un cliente pertenezca al segmento $j$ es $p_j$, para
+$j=0,1,\dots,4$ (las $p_j$ suman $1$). El gasto de un cliente del segmento $j$ es
+aleatorio y uniforme entre $j\cdot 5000$ y $(j+1)\cdot 5000$ pesos. Dispon\'es de
+una funci\'on para generar uniformes en $[0,1]$.
+\begin{enumerate}[label=(\alph*)]
+  \item Propon\'e un algoritmo de simulaci\'on para generar el segmento y el gasto de
+        un cliente. Escrib\'i el pseudoc\'odigo con precisi\'on.
+  \item Describ\'i c\'omo usar ese algoritmo para generar una muestra de $N$ clientes
+        independientes.
+\end{enumerate}
+
+\ejercicio{Ejercicio 3.3 -- Transformada inversa continua.}
+Una variable continua $X$ tiene funci\'on de distribuci\'on acumulada
+$F(x)=1-e^{-\lambda x}$ para $x\ge 0$ (exponencial de par\'ametro $\lambda$).
+\begin{enumerate}[label=(\alph*)]
+  \item Deriv\'a la regla de transformada inversa para generar $X$ a partir de una
+        uniforme $U\sim\mathrm{Unif}[0,1]$.
+  \item Escrib\'i el pseudoc\'odigo correspondiente.
+  \item \textquestiondown{}C\'omo verificar\'ias emp\'iricamente, a partir de muestras generadas, que la
+        media y la desviaci\'on est\'andar coinciden con las te\'oricas?
+\end{enumerate}
+
+\ejercicio{Ejercicio 3.4 -- Calidad de un generador.}
+Un generador congruencial produce una secuencia de enteros $x_1,\dots,x_{10}$
+entre $0$ y $m$. Al dividir cada valor por $m$ se obtiene una secuencia en $[0,1]$.
+\begin{enumerate}[label=(\alph*)]
+  \item \textquestiondown{}Qu\'e media y qu\'e desviaci\'on est\'andar te\'oricas tiene una uniforme en
+        $[0,1]$?
+  \item Describ\'i qu\'e estad\'isticos y qu\'e gr\'aficos usar\'ias para decidir si la
+        secuencia generada ``parece'' azarosa y uniforme.
+\end{enumerate}
+
+\ejercicio{Ejercicio 3.5 -- Integraci\'on por Monte Carlo en alta dimensi\'on.}
+Se quiere calcular el volumen de la esfera unitaria en dimensi\'on $N$,
+$\{x\in\mathbb{R}^N : \sum_{i=1}^N x_i^2 \le 1\}$.
+\begin{enumerate}[label=(\alph*)]
+  \item Describ\'i un algoritmo de Monte Carlo que estime ese volumen sampleando
+        puntos uniformes en el cubo $[-1,1]^N$.
+  \item Escrib\'i el estimador del volumen y su error de estimaci\'on.
+  \item Compar\'a conceptualmente este m\'etodo con una integraci\'on sobre una grilla
+        cartesiana a medida que crece $N$ (error y costo computacional).
+\end{enumerate}
+
+%=====================================================================
+\section{Procesos estoc\'asticos y rol de los par\'ametros}
+%=====================================================================
+
+\ejercicio{Ejercicio 4.1 -- Random walk aritm\'etico.}
+Consider\'a el proceso
+\[
+S_{i+1}=S_i+\mu\,\Delta+\sigma\sqrt{\Delta}\,Z_{i+1},
+\]
+con $Z_{i+1}$ shocks normales est\'andar i.i.d.
+\begin{enumerate}[label=(\alph*)]
+  \item \textquestiondown{}Qu\'e rol cumple cada par\'ametro ($\mu$, $\sigma$, $\Delta$)?
+  \item \textquestiondown{}C\'omo es el gr\'afico de la evoluci\'on temporal si $\sigma=0$?
+  \item \textquestiondown{}C\'omo es la distribuci\'on de $S$ a horizonte largo si $\mu=0$ y
+        $\sigma\neq 0$? Describ\'i su forma y c\'omo crece su dispersi\'on con el tiempo.
+\end{enumerate}
+
+\ejercicio{Ejercicio 4.2 -- Random walk geom\'etrico.}
+Consider\'a el proceso
+\[
+S_{i+1}=S_i\,(1+\mu\,\Delta+\sigma\sqrt{\Delta}\,Z_{i+1}).
+\]
+\begin{enumerate}[label=(\alph*)]
+  \item \textquestiondown{}Qu\'e rol cumple cada par\'ametro? \textquestiondown{}Por qu\'e este modelo es m\'as adecuado
+        que el aritm\'etico para precios de acciones?
+  \item \textquestiondown{}C\'omo es el gr\'afico de la evoluci\'on temporal si $\sigma=0$?
+  \item Para un horizonte de $N$ pasos grande, con $\Delta\ll 1$, $\mu=0$ y
+        $\sigma\neq 0$, \textquestiondown{}cu\'al es la forma (no la f\'ormula) de la distribuci\'on
+        terminal de $S$?
+\end{enumerate}
+
+\ejercicio{Ejercicio 4.3 -- Reversi\'on a la media.}
+Consider\'a el proceso
+\[
+S_{i+1}=S_i+\kappa\,(\theta-S_i)\,\Delta+\sigma\sqrt{\Delta}\,Z_{i+1}.
+\]
+\begin{enumerate}[label=(\alph*)]
+  \item \textquestiondown{}Por qu\'e se dice que este proceso tiene reversi\'on a la media? \textquestiondown{}Qu\'e
+        representa $\theta$?
+  \item \textquestiondown{}Qu\'e sucede con la deriva cuando $S_i$ est\'a muy por encima o muy por
+        debajo de $\theta$?
+  \item \textquestiondown{}Cu\'al es el efecto del t\'ermino de volatilidad? \textquestiondown{}Qu\'e rol tiene $\kappa$
+        en la velocidad de reversi\'on?
+  \item Describ\'i c\'omo cambia el n\'umero de cruces del nivel $S=\theta$ a medida que
+        aumenta $\kappa$.
+\end{enumerate}
+
+\ejercicio{Ejercicio 4.4 -- Reversi\'on a la media con nivel estacional.}
+Consider\'a una versi\'on con media de largo plazo dependiente del tiempo:
+\[
+S_{i+1}=S_i+\kappa\,(\theta(t_i)-S_i)\,\Delta+\sigma\sqrt{\Delta}\,Z_{i+1},
+\qquad \theta(t_i)=\bar\theta + A\cos\!\left(\tfrac{2\pi i}{365}\right),
+\]
+con $\Delta=1/365$.
+\begin{enumerate}[label=(\alph*)]
+  \item Interpret\'a el rol de $\bar\theta$, $A$ y del per\'iodo del coseno.
+  \item Describ\'i cualitativamente c\'omo se ver\'ia un camino t\'ipico del proceso.
+  \item Reescrib\'i el modelo en la forma $S_{i+1}-S_i = \dots$ de modo que los
+        par\'ametros $\kappa$ y $\sigma$ puedan estimarse por una regresi\'on lineal a
+        partir de datos hist\'oricos. Indic\'a cu\'ales son las variables dependiente e
+        independiente.
+\end{enumerate}
+
+\ejercicio{Ejercicio 4.5 -- Procesos acoplados.}
+Dos procesos evolucionan simult\'aneamente:
+\[
+X_{i+1}=X_i+\mu\,\Delta,\qquad X_0=0,
+\]
+\[
+Y_{i+1}=Y_i-\kappa\,(Y_i-X_i)\,\Delta+\sigma\sqrt{\Delta}\,Z_i,\qquad Y_0=0,
+\]
+con $Z_i$ normales est\'andar i.i.d., $\Delta=1$, $\mu=1$, $\sigma=1$.
+\begin{enumerate}[label=(\alph*)]
+  \item Interpret\'a el t\'ermino $-\kappa\,(Y_i-X_i)$: \textquestiondown{}hacia d\'onde es atra\'ido $Y$?
+  \item Describ\'i (con palabras y un bosquejo) c\'omo ser\'ian $5$ caminos t\'ipicos de
+        $X$ e $Y$ entre $i=0$ e $i=10$ si $\kappa=0$.
+  \item Describ\'i c\'omo cambiar\'ian esos caminos si $\kappa=1$. \textquestiondown{}Qu\'e relaci\'on hay
+        entre $Y$ y $X$ en ese caso?
+\end{enumerate}
+
+%=====================================================================
+\section{Simulaci\'on secuencial de caminos (algoritmos y pseudoc\'odigo)}
+%=====================================================================
+
+\ejercicio{Ejercicio 5.1 -- Puntos acumulados con estados aleatorios.}
+Un equipo juega un torneo de $t=1,\dots,20$ fechas. Suma $3$ puntos si gana, $1$
+si empata y $0$ si pierde. Si su jugadora estrella est\'a disponible, gana, empata
+o pierde con probabilidades $P_G$, $P_E$, $P_P$. Pero con probabilidad
+$\lambda\ll 1$ la jugadora est\'a lesionada esa fecha, y entonces las probabilidades
+son $Q_G$, $Q_E$, $Q_P$. Los resultados y las lesiones son independientes entre
+fechas. Sea $N_t$ el total de puntos acumulados hasta la fecha $t$ inclusive.
+Dispon\'es de una funci\'on para generar uniformes en $[0,1]$.
+\begin{enumerate}[label=(\alph*)]
+  \item Explic\'a con precisi\'on (pseudoc\'odigo y palabras) un algoritmo para generar
+        secuencialmente un camino de $N_t$ entre $t=1$ y $t=20$.
+  \item Explic\'a c\'omo estimar\'ias, por simulaci\'on de caminos, la probabilidad de
+        que $N_{20}>27$ y su error de estimaci\'on.
+\end{enumerate}
+
+\ejercicio{Ejercicio 5.2 -- Caminata en dos dimensiones.}
+Una part\'icula parte del origen de un rect\'angulo. En cada paso se mueve $1$
+unidad en el eje $x$ y $1$ unidad en el eje $y$; cada movimiento es hacia adelante
+o hacia atr\'as con igual probabilidad, independiente entre ejes y entre pasos.
+\begin{enumerate}[label=(\alph*)]
+  \item Describ\'i con pseudoc\'odigo c\'omo simular\'ias un camino hasta que la part\'icula
+        abandona el rect\'angulo.
+  \item Explic\'a c\'omo estimar\'ias, sobre muchos caminos, el n\'umero medio de pasos
+        hasta salir y su error de estimaci\'on.
+  \item Explic\'a c\'omo estimar\'ias la proporci\'on de veces que la part\'icula sale por
+        un lado determinado del rect\'angulo.
+\end{enumerate}
+
+\ejercicio{Ejercicio 5.3 -- Simulaci\'on calibrada de un precio.}
+Se modela el precio diario de una acci\'on con un random walk geom\'etrico
+$S_{i+1}=S_i+S_i\mu\Delta+S_i\sigma\sqrt{\Delta}\,Z_{i+1}$.
+\begin{enumerate}[label=(\alph*)]
+  \item \textquestiondown{}Cu\'antos d\'ias de trading hay aproximadamente en un a\~no? \textquestiondown{}Cu\'anto debe
+        valer $\Delta$ si el paso es diario?
+  \item A partir de retornos hist\'oricos diarios con media muestral $m$ y desviaci\'on
+        est\'andar muestral $s$, \textquestiondown{}qu\'e valores implican para $\mu$ y $\sigma$?
+  \item Describ\'i con pseudoc\'odigo c\'omo simular\'ias un camino del precio a un
+        horizonte de un mes.
+  \item Explic\'a c\'omo estimar\'ias, por Monte Carlo, la media y la desviaci\'on
+        est\'andar del precio terminal y la probabilidad de una p\'erdida mayor a
+        cierto umbral, junto con sus errores de estimaci\'on.
+\end{enumerate}
+
+\ejercicio{Ejercicio 5.4 -- Decisiones con umbral y cashflows (VAN).}
+Un activo operativo (por ejemplo un molino) genera un ingreso diario proporcional
+a una variable $S_i$ que sigue un proceso con reversi\'on a la media. Puede
+apagarse y encenderse seg\'un una regla de umbral fijo $K$: se apaga al superar $K$
+y se enciende al bajar de $K$. Apagar cuesta un monto fijo; adem\'as hay una
+probabilidad de rotura que depende de $S_i$, con un costo de reparaci\'on asociado.
+Los cashflows se descuentan a una tasa anual con capitalizaci\'on diaria.
+\begin{enumerate}[label=(\alph*)]
+  \item Describ\'i con pseudoc\'odigo la simulaci\'on conjunta de: el proceso $S_i$, las
+        roturas, las decisiones de apagado/encendido y la acumulaci\'on de cashflows
+        descontados a lo largo de un a\~no.
+  \item Explic\'a c\'omo estimar\'ias el VAN esperado como funci\'on del umbral $K$, con
+        su error de estimaci\'on.
+  \item Describ\'i c\'omo buscar\'ias el umbral $K$ \'optimo que maximiza el VAN esperado.
+\end{enumerate}
+
+\ejercicio{Ejercicio 5.5 -- Ejecuci\'on \'optima con impacto de precio.}
+Se desea liquidar una posici\'on de acciones a lo largo de $n$ per\'iodos. El precio
+evoluciona como $S_{i+1}=S_i+\sigma Z_{i+1}-\alpha Q_i^2$, donde $Q_i$ es la
+cantidad vendida en el paso $i$ (que se ejecuta al precio $S_{i+1}$) y el t\'ermino
+$-\alpha Q_i^2$ representa el impacto de mercado.
+\begin{enumerate}[label=(\alph*)]
+  \item Describ\'i con pseudoc\'odigo c\'omo simular\'ias el ingreso total obtenido bajo
+        una regla de venta constante (misma cantidad por per\'iodo).
+  \item Explic\'a c\'omo estimar\'ias, sobre muchos caminos, el ingreso medio y su
+        desviaci\'on est\'andar para distintas reglas de ejecuci\'on.
+  \item \textquestiondown{}C\'omo plantear\'ias el trade-off entre ingreso esperado y riesgo al elegir
+        la longitud de la ejecuci\'on?
+\end{enumerate}
+
+%=====================================================================
+\section{Valuaci\'on por integraci\'on num\'erica y Monte Carlo}
+%=====================================================================
+
+\ejercicio{Ejercicio 6.1 -- Valuaci\'on de una opci\'on call por integraci\'on.}
+Una opci\'on \emph{European Call} sobre un activo otorga el derecho a comprarlo a un
+precio fijo $K$ en un instante futuro $T$. Su cashflow es $\max\{S(T)-K,0\}$.
+Supon\'e que $S(T)$ tiene distribuci\'on Normal con media $m$ y desviaci\'on est\'andar
+$d$, y que el valor del contrato es $E[\max\{S(T)-K,0\}]$.
+\begin{enumerate}[label=(\alph*)]
+  \item Escrib\'i la integral que define el valor del contrato.
+  \item Describ\'i c\'omo aproximar\'ias esa integral por una suma discreta
+        $\sum_i f(s_i)\,\mathrm{cash}(s_i)\,\delta$.
+  \item \textquestiondown{}Sobre qu\'e rango de valores de $s_i$ y con qu\'e fineza de partici\'on
+        $\delta$ trabajar\'ias para que la valuaci\'on tenga una precisi\'on dada (por
+        ejemplo, $10$ centavos)?
+\end{enumerate}
+
+\ejercicio{Ejercicio 6.2 -- La misma valuaci\'on por Monte Carlo.}
+Para el mismo contrato del ejercicio 6.1:
+\begin{enumerate}[label=(\alph*)]
+  \item Describ\'i con pseudoc\'odigo c\'omo estimar\'ias el valor de la opci\'on generando
+        muestras de $S(T)$.
+  \item Escrib\'i el estimador y su error de estimaci\'on.
+  \item \textquestiondown{}C\'omo comparar\'ias este enfoque con la integraci\'on determin\'istica del
+        ejercicio 6.1 en t\'erminos de precisi\'on y de c\'omo escala con la dimensi\'on
+        del problema?
+\end{enumerate}
+
+\ejercicio{Ejercicio 6.3 -- Valuaci\'on de un flujo con descuento.}
+Un proyecto genera un cashflow aleatorio $C_i$ en cada d\'ia $i=1,\dots,n$, que
+depende de un proceso estoc\'astico subyacente. La tasa de inter\'es es $r$ anual
+con capitalizaci\'on diaria, de modo que el cashflow del d\'ia $i$ se descuenta por
+$e^{-r\,i/365}$.
+\begin{enumerate}[label=(\alph*)]
+  \item Escrib\'i la expresi\'on del Valor Actual Neto de un camino simulado.
+  \item Describ\'i c\'omo estimar\'ias el VAN esperado por Monte Carlo y su error de
+        estimaci\'on.
+  \item \textquestiondown{}C\'omo usar\'ias esos estimadores para comparar dos estrategias de
+        operaci\'on distintas de forma estad\'isticamente v\'alida?
+\end{enumerate}
+
+\end{document}
