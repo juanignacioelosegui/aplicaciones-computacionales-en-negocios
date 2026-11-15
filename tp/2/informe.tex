@@ -1,0 +1,145 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-noquoting]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{geometry}
+\usepackage{enumitem}
+\geometry{margin=2.5cm}
+
+\input{resultados}
+
+\title{Aplicaciones Computacionales en Negocios\\
+\large Trabajo Práctico 2 --- Punto 1: modelo de \emph{lot sizing}}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Descripción del problema}
+
+Se debe planificar la producción mensual de $n=5$ productos ($A,\dots,E$) a lo
+largo de $T=24$ meses. La demanda
+$d_{it}$ de cada producto $i$ en cada mes $t$ se consigue de \texttt{datos.xlsx} y debe cumplirse en su totalidad para cada mes. La
+producción de cada producto se realiza en lotes de $L=10$ unidades, con un
+máximo de $C=120$ unidades por producto y por mes. El depósito admite, a lo sumo,
+$D=900$ unidades de stock entre todos los productos. El stock inicial es nulo y
+el costo de producción es $c=\$370$ por unidad, sin costos de almacenamiento.
+
+\section{Modelo de programación lineal entera mixta}
+
+\subsection*{Conjuntos y parámetros}
+
+\begin{align*}
+  P &= \{A,B,C,D,E\} && \text{productos,}\\
+  T &= \{1,\dots,24\} && \text{meses del horizonte de planificación,}\\
+  d_{it} &\ge 0 && \text{demanda del producto } i \text{ en el mes } t,\\
+  c &= 370 && \text{costo de producción por unidad (\$/unidad)},\\
+  L &= 10 && \text{tamaño del lote (unidades)},\\
+  C &= 120 && \text{capacidad de producción por producto y mes (unidades)},\\
+  K &= C/L = 12 && \text{cantidad máxima de lotes por producto y mes,}\\
+  D &= 900 && \text{capacidad total del depósito (unidades).}
+\end{align*}
+
+\subsection*{Variables de decisión}
+
+\begin{align*}
+  y_{it} &\in \mathbb{Z}_{\ge 0}, \quad y_{it} \le K
+  && \begin{tabular}{l} cantidad de lotes del producto $i$ fabricados en el mes $t$\end{tabular}\\
+  s_{it} &\ge 0
+  && \begin{tabular}{l} stock del producto $i$ al final del mes $t$ (unidades)\end{tabular}
+\end{align*}
+
+La producción en unidades es la expresión $x_{it} = L\,y_{it}$. Modelar la
+producción directamente en lotes es lo que garantiza la restricción de
+lotificación: al multiplicar una variable entera por $L=10$, $x_{it}$ sólo puede
+tomar valores en $\{0,10,20,\dots,120\}$. Las variables de stock se declaran
+continuas, por el balance quedan
+automáticamente en múltiplos de $5$, ya que las demandas son múltiplos de $5$ y
+la producción en múltiplos de $10$.
+
+\subsection*{Formulación}
+
+\begin{align}
+  \min\quad & z = \sum_{i\in P}\sum_{t\in T} c\,L\,y_{it}
+  \label{eq:obj}\\[2pt]
+  \text{s.a.}\quad
+  & s_{i,t-1} + L\,y_{it} - d_{it} = s_{it},
+  && \forall i \in P,\ \forall t \in T
+  \label{eq:balance}\\
+  & s_{i0} = 0,
+  && \forall i \in P
+  \label{eq:inicial}\\
+  & \sum_{i \in P} s_{it} \le D,
+  && \forall t \in T
+  \label{eq:deposito}\\
+  & 0 \le y_{it} \le K, \quad y_{it} \in \mathbb{Z},
+  && \forall i \in P,\ \forall t \in T
+  \label{eq:capacidad}\\
+  & s_{it} \ge 0,
+  && \forall i \in P,\ \forall t \in T
+  \label{eq:nonneg}
+\end{align}
+
+\begin{description}[leftmargin=1.6cm,style=nextline,itemsep=2pt]
+  \item[\eqref{eq:obj}] Minimiza el costo total de producción: \$370 por cada
+    unidad fabricada, es decir \$3.700 por lote.
+  \item[\eqref{eq:balance}] Balance de inventario: el stock con el que se cierra
+    un mes es el stock del mes anterior más lo producido menos lo demandado.
+    Junto con $s_{it}\ge 0$ garantiza que toda la demanda se cumpla en el mes en
+    que se produce (no se admiten faltantes ni demanda atrasada).
+  \item[\eqref{eq:inicial}] Stock inicial nulo. No tenemos nada a priori de ningún producto.
+  \item[\eqref{eq:deposito}] Capacidad del depósito: el stock total almacenado
+    al final de cada mes, sumado sobre todos los productos, no supera las 900
+    unidades.
+  \item[\eqref{eq:capacidad}] Capacidad de producción y lotificación: a lo sumo
+    12 lotes (120 unidades) de cada producto por mes, en cantidades enteras de
+    lotes.
+  \item [\eqref{eq:nonneg}] No negatividad de cualquier producto en cualquier mes. Trivial.
+\end{description}
+
+\section{Resolución}
+
+El modelo se implementó en Python con la biblioteca \texttt{PuLP} y se resolvió
+con el solver CBC (archivo \texttt{punto1.py}, la demanda se lee de
+\texttt{datos.xlsx}). El solver alcanza el óptimo:
+
+\[
+  z^{\star} = \$\,\costoOptimo
+\]
+
+\section{Punto 2: límite de 300 unidades por mes}
+
+El modelo es el mismo del punto 1 más una única familia de restricciones, que
+acota la producción total mensual sumada sobre todos los productos:
+\begin{equation}
+  \sum_{i \in P} L\,y_{it} \le 300, \qquad \forall t \in T
+  \label{eq:limite-mensual}
+\end{equation}
+Son 24 restricciones nuevas; no hacen falta variables adicionales. Notar que
+\eqref{eq:limite-mensual} es más fuerte que la capacidad individual
+\eqref{eq:capacidad}: antes se podían fabricar hasta $5\times120=600$ unidades
+por mes.
+
+\paragraph{¿Se puede cumplir con la demanda total?} No: el modelo es
+\textbf{infactible} (así lo reporta el solver, archivo \texttt{punto2.py}). La
+razón se ve sin necesidad de resolverlo. Como el stock inicial es nulo, la
+producción acumulada hasta el mes $t$ no puede superar $300\,t$, y debe alcanzar
+para cubrir la demanda acumulada:
+\[
+  \sum_{\tau \le t} \sum_{i \in P} d_{i\tau} \;\le\; 300\,t,
+  \qquad \forall t \in T .
+\]
+La condición se viola por primera vez en agosto de 2027, donde la demanda
+acumulada es de 2820 unidades contra una capacidad acumulada de 2400 (faltan 420
+unidades), y vuelve a violarse desde julio de 2028 en adelante. Sobre el
+horizonte completo, la demanda total de \demandaTotal{} unidades excede la
+capacidad total de $300 \times 24 = 7200$ unidades: \textbf{faltan 650
+unidades}. Con este límite es imposible satisfacer toda la demanda, de modo que
+el modelo sólo tiene sentido si se relaja el problema --- permitiendo demanda
+insatisfecha (con un costo de faltante) o agregando capacidad externa, que es
+justamente lo que introduce el punto 3 con la tercerización.
+
+\end{document}
