@@ -1,0 +1,50 @@
+% Preámbulo compartido para los modelos del segundo parcial de ACN.
+% Replica el formato del parcial real 2P-2S-2025.
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage[margin=2.6cm]{geometry}
+\usepackage{enumitem}
+\usepackage{array}
+
+\pagestyle{plain}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+
+% Listas de incisos: a), b), c), ...
+\setlist[enumerate,1]{label=\alph*),leftmargin=2.2em,itemsep=7pt,topsep=7pt}
+% Listas numeradas 1., 2., 3., ...
+\newlist{puntos}{enumerate}{1}
+\setlist[puntos]{label=\arabic*.,leftmargin=2.2em,itemsep=7pt,topsep=7pt}
+% Listas de condiciones del enunciado
+\setlist[itemize,1]{label=$\bullet$,leftmargin=2em,itemsep=5pt,topsep=6pt}
+
+% Encabezado del parcial
+\newcommand{\encabezado}[1]{%
+  \begin{center}
+    \textbf{\large Aplicaciones Computacionales en Negocios}\\[3pt]
+    \textbf{\large Segundo semestre de 2025 --- Segundo parcial}\\[3pt]
+    \textbf{\normalsize Modelo de práctica #1}
+  \end{center}
+  \vspace{4pt}
+  \hrule height 0.8pt
+  \vspace{14pt}
+  Nombre:\par\vspace{12pt}
+  Legajo:\par\vspace{12pt}
+  DNI:\par\vspace{12pt}
+  ¿Te recibís con este parcial?:
+  \vspace{10pt}
+  \hrule height 0.8pt
+  \vspace{16pt}
+}
+
+% Título de ejercicio
+\newcommand{\ejercicio}[1]{\par\medskip\noindent\textbf{Ejercicio #1.}\ }
+
+% Atajos de notación usados por la cátedra
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\dem}{\mathrm{dem}}
+\newcommand{\capa}{\mathrm{cap}}
+\newcommand{\costo}{\mathrm{costo}}

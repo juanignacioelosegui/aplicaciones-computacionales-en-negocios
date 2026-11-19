@@ -1,0 +1,141 @@
+\documentclass[11pt,a4paper]{article}
+\input{preambulo}
+
+\begin{document}
+\encabezado{1}
+
+%======================================================================
+\ejercicio{1}
+Consideremos el modelo clásico de \emph{lot sizing} con un único producto, con
+costos de producción y de almacenamiento. Tenemos un conjunto
+$T = \{1,\dots,n\}$ de períodos de planificación; para cada $t \in T$ tenemos la
+demanda $d_t \in \R_+$, el costo unitario de producción $c_t \in \R_+$ y el costo
+unitario de almacenamiento $a_t \in \R_+$. La variable $x_t \in \R_+$ representa
+la cantidad fabricada en el período $t$, y la variable $s_t \in \R_+$ representa
+el stock al final del período $t$:
+
+\begin{align}
+\min \quad & \sum_{t \in T} \big( c_t\, x_t + a_t\, s_t \big) \\
+s_t &= s_{t-1} + x_t - d_t && \forall\, t \in T \\
+x_t &\ge 0 && \forall\, t \in T \\
+s_t &\ge 0 && \forall\, t \in T
+\end{align}
+
+con $s_0 = 0$ (el stock inicial es nulo).
+
+\begin{enumerate}
+  \item La restricción (2), junto con la restricción (4), es la que impone el
+  cumplimiento de la demanda en cada período. Explicar por qué. ¿Qué
+  representaría operativamente el modelo si reemplazáramos (4) por
+  $s_t \in \R$ (es decir, si permitiéramos stock negativo)? En ese caso,
+  ¿cómo habría que modificar la función objetivo para que el modelo siga
+  teniendo sentido?
+
+  \item Supongamos ahora que la planta tiene una capacidad máxima de producción
+  $C_t$ en cada período, y que encender la línea de producción en un período
+  tiene un costo fijo $f_t \in \R_+$ (que es dato), independiente de la cantidad
+  fabricada. ¿Cómo se modifica el modelo? Supongamos además que, si en un
+  período se produce, el lote fabricado debe ser de al menos $m$ unidades
+  (que también es dato). ¿Cómo se agrega esta condición?
+
+  \item Por razones de mantenimiento, no se puede producir durante tres períodos
+  consecutivos. Agregar esta restricción al modelo del punto anterior.
+  Supongamos además que entre dos períodos con producción debe haber al menos
+  $\ell$ períodos sin producción. ¿Cómo se escribe esta restricción?
+
+  \item ¿Cómo se modifica el modelo original si el objetivo no es minimizar el
+  costo total, sino minimizar el costo más elevado entre los períodos de $T$?
+  Por otro lado, volviendo al modelo original: ¿qué sucedería con las soluciones
+  óptimas si para algún período tuviéramos $a_t < 0$? ¿Y si además el depósito
+  no tuviera capacidad máxima?
+\end{enumerate}
+
+\newpage
+%======================================================================
+\ejercicio{2}
+Estamos a cargo de la planificación de las guardias de un hospital durante las
+próximas cuatro semanas. Sea $M$ el conjunto de médicos y sea $E$ el conjunto de
+enfermeros, y llamamos $T = \{1,\dots,28\}$ a los días del período de
+planificación. Cada día está dividido en dos turnos: el turno \emph{día} y el
+turno \emph{noche}, y llamamos $S = \{\mathrm{d}, \mathrm{n}\}$ al conjunto de
+turnos. Tenemos que determinar qué turnos deberá cubrir cada empleado,
+respetando las siguientes restricciones:
+
+\begin{itemize}
+  \item Cada empleado trabaja a lo sumo un turno por día.
+  \item Cada empleado debe cubrir entre 16 y 18 turnos a lo largo de las cuatro
+  semanas.
+  \item Ningún empleado puede trabajar el turno noche de un día y el turno día
+  del día siguiente.
+  \item Ningún empleado puede trabajar más de cuatro días consecutivos
+  (sin importar el turno que cubra en cada uno de esos días).
+  \item En cada turno de cada día debe haber al menos dos médicos y al menos
+  tres enfermeros.
+  \item En ningún turno puede haber más de ocho empleados trabajando.
+\end{itemize}
+
+\begin{puntos}
+  \item Formular un modelo de programación lineal entera para encontrar una
+  solución a este problema, buscando minimizar la cantidad máxima de turnos
+  noche que recibe un mismo empleado. \emph{Pista:} para cada
+  $i \in M \cup E$, cada $k \in S$ y cada $t \in T$, considerar una variable
+  binaria $x_{ikt}$ que represente si el empleado $i$ cubre el turno $k$ del
+  día $t$. Observar que la función objetivo pedida no es lineal: explicar cómo
+  se linealiza.
+
+  \item Sea $W \subseteq T$ el conjunto de los días que caen sábado o domingo,
+  y supongamos que los días $t$ y $t+1$ forman un fin de semana cuando
+  $t \in W$ y $t+1 \in W$. Agregar al modelo una restricción para que cada
+  médico tenga al menos un fin de semana completo libre.
+
+  \item Supongamos ahora que el hospital quiere además que ningún empleado
+  cubra más de tres turnos noche en una misma semana. Agregar esta restricción
+  al modelo. ¿Puede este agregado volver infactible el problema? Justificar.
+\end{puntos}
+
+\newpage
+%======================================================================
+\ejercicio{3}
+Estamos a cargo de la organización de una campaña de testeo sanitario y debemos
+determinar qué centros de atención abrir y cuántos \emph{boxes} habilitar en cada
+uno. Tenemos un conjunto $L$ de ubicaciones candidatas y un conjunto $C$ de
+barrios. Para cada barrio $i \in C$ conocemos su demanda $\dem_i \in \Z_+$
+(cantidad de personas a testear) y, para cada ubicación $j \in L$, la distancia
+$d_{ij} \in \R_+$ entre el barrio $i$ y la ubicación $j$. Todas las personas de un
+mismo barrio deben ser atendidas en el mismo centro.
+
+Para cada ubicación $j \in L$ tenemos la cantidad mínima $a_j \in \Z_+$
+(en caso de apertura) y la cantidad máxima $b_j \in \Z_+$ de boxes que se pueden
+habilitar allí; es decir, la ubicación $j$ puede tener 0 boxes (si no se abre) o
+bien cualquier número de boxes entre $a_j$ y $b_j$. Cada box atiende hasta 120
+personas. Para cada ubicación $j \in L$ tenemos además el costo $c_j \in \R_+$ de
+habilitación de cada box y un costo fijo $f_j \in \R_+$ por abrir el centro (es
+decir, si se habilitan $k$ boxes en la ubicación $j$ entonces se incurre en un
+costo de $f_j + k\,c_j$, y si no se habilita ningún box en la ubicación $j$
+entonces el costo asociado a esa ubicación es cero).
+
+\begin{puntos}
+  \item Formular un modelo de programación lineal entera para determinar qué
+  centros abrir, cuántos boxes habilitar en cada uno y en qué centro se atiende
+  cada barrio, de modo tal que toda la demanda quede cubierta y se minimice el
+  costo total. Observar que en este punto no es relevante minimizar la distancia
+  de viaje de las personas.
+
+  \item Agregar al modelo una restricción para que ningún barrio sea asignado a
+  un centro ubicado a más de $U$ kilómetros de distancia (siendo $U$ un dato).
+  ¿Puede este agregado volver infactible el problema? ¿Qué se suele hacer en
+  esos casos?
+
+  \item Supongamos ahora que disponemos de un presupuesto total $B$ y que, en
+  lugar de minimizar el costo, queremos minimizar la distancia que debe recorrer
+  el barrio que queda más lejos de su centro asignado. ¿Cómo se modifica el
+  modelo? Explicar la linealización utilizada.
+
+  \item Supongamos finalmente que cada barrio $i \in C$ tiene una distancia
+  actual $\mathrm{actual}_i \in \R_+$ al centro donde se atiende hoy, y que
+  queremos garantizar que ningún barrio empeore su situación respecto de la
+  actual. ¿Cómo se agrega esta condición al modelo? ¿Por qué conviene
+  implementarla fijando variables en lugar de agregar desigualdades nuevas?
+\end{puntos}
+
+\end{document}

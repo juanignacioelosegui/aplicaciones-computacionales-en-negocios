@@ -1,0 +1,132 @@
+\documentclass[11pt,a4paper]{article}
+\input{preambulo}
+
+\begin{document}
+\encabezado{3}
+
+%======================================================================
+\ejercicio{1}
+Consideremos el problema de diseñar el \emph{fixture} de una liga deportiva.
+Tenemos un conjunto $E = \{1,\dots,n\}$ de equipos ($n$ es par) y un conjunto
+$F = \{1,\dots,2n-2\}$ de fechas. Juegan todos contra todos dos partidos (local
+y visitante). Para cada par de equipos $i,j \in E$, $i \neq j$, y cada fecha
+$f \in F$, la variable binaria $x_{ijf}$ toma el valor 1 si el equipo $i$ juega
+de local contra el equipo $j$ en la fecha $f$. El modelo básico es:
+
+\begin{align}
+\sum_{f \in F} x_{ijf} &= 1 && \forall\, i,j \in E,\ i \neq j \\
+\sum_{j \in E} \big( x_{ijf} + x_{jif} \big) &= 1 && \forall\, i \in E,\ \forall\, f \in F \\
+x_{ijf} &\in \{0,1\} && \forall\, i,j \in E,\ i \neq j,\ \forall\, f \in F \notag
+\end{align}
+
+\begin{enumerate}
+  \item ¿Qué sucede si eliminamos la restricción (1)? ¿Y si en la restricción
+  (2) reemplazamos el signo $=$ por $\le$? Describir en cada caso qué soluciones
+  pasan a ser factibles y si el modelo sigue representando el problema.
+
+  \item Agregar una restricción para que el equipo 3 tenga un \emph{patrón
+  perfecto}, es decir, para que alterne siempre partidos de local con partidos
+  de visitante.
+
+  \item Agregar una restricción para que el equipo 1 juegue al menos cinco
+  partidos de local en las primeras ocho fechas, y otra para que el partido
+  entre los equipos 2 y 3 (siendo 2 el local) no se juegue entre las fechas 7 y
+  12.
+
+  \item Sea $D \subseteq E$ el conjunto de los equipos que pelean por no
+  descender de categoría. Agregar una restricción para que en las últimas tres
+  fechas se programen al menos cinco partidos entre equipos de este conjunto.
+  ¿Por qué puede ser relevante una restricción como ésta?
+
+  \item Supongamos que dividimos $E$ en $n/2$ parejas de equipos, de modo tal
+  que los equipos de cada pareja son rivales clásicos. Agregar las restricciones
+  necesarias para que haya dos \emph{fechas de clásicos} en las que todas las
+  parejas se enfrentan entre sí, sabiendo que las fechas de clásicos no están
+  fijadas de antemano: queremos que la primera se planifique entre las fechas 4
+  y 12, y la segunda entre las fechas 18 y 30. \emph{Pista:} introducir
+  variables binarias asociadas a las fechas.
+\end{enumerate}
+
+\newpage
+%======================================================================
+\ejercicio{2}
+Tenemos que conformar un equipo de trabajo a partir de un conjunto $P$ de
+candidatos. El equipo debe cubrir un conjunto $R$ de roles, y para cada rol
+$r \in R$ se requieren exactamente $D_r \in \Z_+$ personas. Para cada persona
+$i \in P$ conocemos su sueldo pretendido $s_i \in \R_+$, y para cada persona
+$i \in P$ y cada rol $r \in R$ conocemos el dato $H_{ir} \in \{0,1\}$, que indica
+si la persona $i$ está habilitada para desempeñar el rol $r$, y el puntaje
+$q_{ir} \in \R_+$ que la persona $i$ obtendría en el rol $r$. Cada persona
+seleccionada ocupa exactamente un rol, aunque esté habilitada para más de uno.
+El presupuesto salarial total es de $B$ pesos.
+
+\begin{puntos}
+  \item Formular un modelo de programación lineal entera para conformar el
+  equipo maximizando el puntaje total, respetando las habilitaciones, los
+  requerimientos de cada rol y el presupuesto. \emph{Pista:} usar una variable
+  binaria $x_{ir}$ por cada persona $i \in P$ y cada rol $r \in R$.
+
+  \item Sea $A \subseteq P$ un conjunto de personas de contratación obligatoria
+  y sea $I \subseteq P \times P$ un conjunto de pares de personas que no pueden
+  trabajar juntas. Agregar ambas condiciones al modelo.
+
+  \item Decimos que un conjunto $K \subseteq P$ es un \emph{cubrimiento} si
+  $\sum_{i \in K} s_i > B$. Explicar por qué, en ese caso, la desigualdad
+  \[
+  \sum_{i \in K} \sum_{r \in R} x_{ir} \;\le\; |K| - 1
+  \]
+  es válida para el modelo. ¿Modifica este agregado el conjunto de soluciones
+  enteras factibles? ¿Modifica el conjunto de soluciones óptimas? ¿Para qué
+  sirve entonces agregarla? ¿Por qué no conviene agregar al modelo todas las
+  desigualdades de este tipo?
+
+  \item Supongamos que tres candidatos $u$, $v$ y $w$ son incompatibles de a
+  pares, de modo que el modelo del punto 2 incluye las restricciones
+  $x_u + x_v \le 1$, $x_v + x_w \le 1$ y $x_u + x_w \le 1$ (escribiendo
+  $x_i = \sum_{r \in R} x_{ir}$). Al resolver la relajación lineal, el
+  \emph{solver} devuelve $x_u = x_v = x_w = 0.5$. Verificar que esa solución es
+  factible para la relajación, proponer una desigualdad válida que la elimine, y
+  explicar por qué su agregado acelera la resolución del modelo.
+\end{puntos}
+
+\newpage
+%======================================================================
+\ejercicio{3}
+Tenemos un conjunto $T$ de tareas que debemos programar en un conjunto $M$ de
+$k > 1$ máquinas. Las máquinas trabajan las 24 horas en forma continua y cada
+una procesa una tarea a la vez; una vez que una máquina comienza una tarea, no
+se la puede interrumpir hasta que la tarea termine. Es posible ejecutar dos
+tareas al mismo tiempo en máquinas distintas, pero no en la misma máquina. Para
+cada tarea $i \in T$ y cada máquina $u \in M$ tenemos la duración
+$d_{iu} \in \R_+$ de la tarea $i$ si se ejecuta en la máquina $u$, y para cada
+tarea $i \in T$ tenemos su fecha de entrega $e_i \in \R_+$, medida a partir del
+momento 0. Buscamos determinar en qué máquina y en qué orden programar las
+tareas, de modo tal de minimizar la suma de las demoras, entendiendo por demora
+de la tarea $i$ el tiempo de terminación de $i$ menos su fecha de entrega,
+cuando ese valor es positivo (y cero en caso contrario).
+
+\begin{puntos}
+  \item Escribir un modelo de programación lineal entera mixta para este
+  problema. \emph{Pista:} usar una variable continua $p_i \ge 0$ por cada tarea
+  $i \in T$ que indique en qué momento comienza esa tarea, una variable binaria
+  $z_{iu}$ por cada tarea $i \in T$ y cada máquina $u \in M$ que indique si la
+  tarea $i$ se asigna a la máquina $u$, y una variable binaria $y_{ij}$ por cada
+  par de tareas $i, j \in T$, $i \ne j$, que indique si la tarea $i$ comienza
+  antes que la tarea $j$.
+
+  \item Explicar cómo se modela en el objetivo la demora de cada tarea, que es
+  de la forma $\max\{0, \cdot\}$. ¿Por qué alcanza con una sola desigualdad por
+  tarea? ¿Qué pasaría si el problema fuera de maximización?
+
+  \item Las restricciones de no superposición requieren una constante $M$
+  suficientemente grande. Proponer un valor concreto de esa constante en función
+  de los datos del problema y explicar por qué conviene que sea lo más chica
+  posible, relacionando la respuesta con la relajación lineal del modelo.
+
+  \item Supongamos ahora que tenemos un digrafo $G = (T, A)$ de precedencias
+  entre las tareas, de modo tal que si $ij \in A$ entonces la tarea $j$ sólo
+  puede comenzar una vez que la tarea $i$ se haya completado. ¿Cómo se modifica
+  el modelo? ¿Qué condición debe cumplir $G$ para que el problema sea factible?
+\end{puntos}
+
+\end{document}

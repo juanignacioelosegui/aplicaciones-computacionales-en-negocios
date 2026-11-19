@@ -1,0 +1,143 @@
+\documentclass[11pt,a4paper]{article}
+\input{preambulo}
+
+\begin{document}
+\encabezado{2}
+
+%======================================================================
+\ejercicio{1}
+Consideremos el siguiente modelo de \emph{facility location}, en el que hay un
+conjunto $C$ de clientes y un conjunto $L$ de ubicaciones candidatas:
+
+\begin{align}
+\min \quad & \sum_{i \in C} \sum_{j \in L} \alpha\, d_{ij}\, x_{ij}
+           + \sum_{j \in L} \beta\, y_j \\
+\sum_{j \in L} x_{ij} &= 1 && \forall\, i \in C \\
+x_{ij} &\le y_j && \forall\, i \in C,\ \forall\, j \in L \\
+x_{ij} &\in \{0,1\} && \forall\, i \in C,\ \forall\, j \in L \notag \\
+y_j &\in \{0,1\} && \forall\, j \in L \notag
+\end{align}
+
+En este modelo, la variable binaria $x_{ij}$ representa si el cliente $i$ es
+atendido desde la ubicación $j$, y la variable binaria $y_j$ especifica si se
+abre un \emph{facility} en la ubicación $j$. El parámetro $d_{ij} \in \R_+$ es la
+distancia entre el cliente $i$ y la ubicación $j$, la constante $\alpha > 0$ es el
+costo por kilómetro de viaje a lo largo del período de operación, y la constante
+$\beta > 0$ es el costo de instalación de cada \emph{facility}.
+
+\begin{enumerate}
+  \item ¿Cuál es la solución óptima de este modelo si $\beta = 0$? ¿Y si además
+  eliminamos la restricción (3)? Justificar en ambos casos.
+
+  \item Una formulación alternativa reemplaza la restricción (3) por
+  \[
+  \sum_{i \in C} x_{ij} \;\le\; |C|\; y_j \qquad \forall\, j \in L .
+  \]
+  Explicar por qué ambas formulaciones tienen exactamente las mismas soluciones
+  enteras factibles. ¿Son igualmente buenas a la hora de resolver el modelo con
+  un \emph{solver}? Justificar exhibiendo una solución de la relajación lineal
+  que sea factible para una de las formulaciones y no para la otra.
+
+  \item Supongamos que cada cliente $i \in C$ tiene una demanda
+  $\dem_i \in \R_+$ asociada y que cada ubicación $j \in L$ tiene una capacidad
+  máxima $\capa_j \in \R_+$. ¿Cómo cambia el modelo si necesitamos agregar esta
+  restricción? Supongamos además que no queremos abrir un \emph{facility} si la
+  suma de las demandas de los clientes asignados a ese \emph{facility} es menor
+  a un umbral $\delta$. ¿Cómo se agrega esta restricción al modelo?
+
+  \item Los clientes están agrupados en cuadras: para cada $i \in C$ tenemos el
+  dato $\mathrm{cuadra}_i \in \Z$. Agregar al modelo una restricción para que
+  dos clientes de la misma cuadra sean siempre atendidos desde la misma
+  ubicación. ¿Cuántas restricciones se agregan al modelo con esta condición?
+  ¿Se puede lograr el mismo efecto sin agregar restricciones?
+\end{enumerate}
+
+\newpage
+%======================================================================
+\ejercicio{2}
+Tenemos que diseñar el \emph{fixture} de una liga deportiva. Tenemos un conjunto
+$E = \{1,\dots,n\}$ de equipos ($n$ es par) y un conjunto
+$F = \{1,\dots,2n-2\}$ de fechas. Los equipos deben jugar todos contra todos,
+ida y vuelta (\emph{double round-robin}). Para cada par de equipos
+$i,j \in E$, $i \ne j$, y cada fecha $f \in F$, consideramos la variable binaria
+$x_{ijf}$, que toma el valor 1 si el equipo $i$ juega de local contra el equipo
+$j$ en la fecha $f$, y 0 en caso contrario.
+
+\begin{puntos}
+  \item Escribir las restricciones que garantizan que (i) cada equipo juega
+  exactamente un partido en cada fecha, y (ii) cada partido se juega exactamente
+  una vez a lo largo del campeonato. Observar que, con esta formulación, no hace
+  falta una variable adicional para representar la localía: explicar por qué, y
+  escribir la expresión que indica si el equipo $i$ juega de local en la fecha
+  $f$.
+
+  \item Agregar restricciones para que ningún equipo juegue más de dos partidos
+  consecutivos de local ni más de dos partidos consecutivos de visitante.
+
+  \item Sea $K \subseteq E \times E$ el conjunto de los pares de equipos que son
+  rivales clásicos. Agregar restricciones para que los clásicos se jueguen entre
+  las fechas 4 y 12, y para que el equipo 5, que no dispone de su estadio en las
+  fechas 3 y 11, no juegue de local en esas fechas.
+
+  \item Decimos que un equipo tiene un \emph{break} en la fecha $f > 1$ si juega
+  con la misma localía en las fechas $f-1$ y $f$. Agregar al modelo las
+  variables y restricciones necesarias para minimizar la cantidad total de
+  \emph{breaks} del campeonato. Explicar por qué, con la función objetivo
+  propuesta, alcanza con una sola desigualdad por variable de \emph{break} para
+  que el modelo sea correcto, y por qué estas variables pueden declararse
+  continuas en $[0,1]$ en lugar de binarias.
+
+  \item Decimos que un equipo tiene un \emph{patrón perfecto} si alterna siempre
+  local y visitante, es decir, si no tiene ningún \emph{break}. Explicar por qué
+  a lo sumo dos equipos pueden tener un patrón perfecto en un mismo
+  \emph{fixture}.
+\end{puntos}
+
+\newpage
+%======================================================================
+\ejercicio{3}
+Somos responsables de la planificación de la producción de un laboratorio
+medicinal para los próximos doce meses. Sea $P$ el conjunto de productos y sea
+$T = \{1,\dots,12\}$ el conjunto de meses. Para cada producto $i \in P$ y cada
+mes $t \in T$ tenemos la demanda estimada $d_{it} \in \R_+$, el costo unitario de
+producción $c_{it} \in \R_+$ y el costo unitario de almacenamiento
+$h_i \in \R_+$. El stock inicial de cada producto es $s_{i0} = 0$. La
+planificación debe respetar las siguientes condiciones:
+
+\begin{itemize}
+  \item La planta puede fabricar como máximo 300 unidades por mes, sumando todos
+  los productos.
+  \item El depósito es compartido y no puede almacenar más de $S_{\max}$
+  unidades en total al final de cada mes.
+  \item La producción propia se realiza en lotes exactos de 10 unidades: en cada
+  mes, de cada producto se fabrican 0, 10, 20, \dots\ unidades.
+  \item Además de fabricar, se puede tercerizar producción a un proveedor
+  externo, a un costo de $g$ pesos por unidad. El proveedor no puede entregar
+  más de 200 unidades por mes sumando todos los productos y, si en un mes se le
+  terceriza un producto, se le deben pedir al menos 20 unidades de ese producto.
+  \item Cada producto tiene un stock de seguridad $m_i$ que se debe mantener al
+  final de cada mes. Esta condición se puede incumplir, pero se paga una
+  penalidad fija de $\Pi$ pesos por cada par (producto, mes) en el que se la
+  incumpla.
+\end{itemize}
+
+\begin{puntos}
+  \item Formular un modelo de programación lineal entera mixta para determinar
+  cuánto fabricar y cuánto tercerizar de cada producto en cada mes, minimizando
+  el costo total. Definir con precisión los conjuntos, los parámetros y las
+  variables de decisión que utilice el modelo.
+
+  \item Justificar por qué la penalidad del último punto requiere una variable
+  binaria, mientras que una penalidad proporcional a las unidades faltantes no
+  la requeriría.
+
+  \item ¿Cómo se modifica el modelo si queremos incorporar una tasa de descuento
+  $r$, de modo que los costos del mes $t$ se expresen en valor presente?
+
+  \item El gerente observa que la solución óptima tiende a terminar el horizonte
+  de planificación con stock nulo de todos los productos, lo cual deja a la
+  planta en mala posición para el año siguiente. Explicar por qué ocurre esto y
+  proponer una modificación del modelo que corrija este comportamiento.
+\end{puntos}
+
+\end{document}
