@@ -1,0 +1,738 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{array}
+
+\geometry{margin=2.5cm}
+
+\setlength{\headheight}{14pt}
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{Aplicaciones Computacionales en Negocios -- UTDT}
+\lhead{Ejercicios adicionales (2.\textsuperscript{o} parcial)}
+\cfoot{\thepage}
+
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.6em}{}
+\titlespacing*{\section}{0pt}{1.6em}{0.8em}
+
+\newcommand{\ejercicio}[1]{\par\medskip\noindent\textbf{#1}\par\nopagebreak\smallskip}
+
+\setlist[enumerate,1]{label=\alph*),leftmargin=2em,itemsep=3pt,topsep=4pt}
+\setlist[itemize,1]{label=$\bullet$,leftmargin=2em,itemsep=3pt,topsep=4pt}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\dem}{\mathrm{dem}}
+\newcommand{\capa}{\mathrm{cap}}
+\newcommand{\costo}{\mathrm{costo}}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+
+\title{\textbf{Ejercicios adicionales para el segundo parcial}\\[0.3em]
+\large Aplicaciones Computacionales en Negocios -- UTDT}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{fancy}
+
+\noindent
+Estos ejercicios cubren los temas de la segunda parte de la materia: las clases
+teóricas 13 a 22, las prácticas 8 a 12 y la guía 4. Están pensados como práctica
+adicional a los modelos de parcial, y siguen el mismo formato que el parcial
+real: formular modelos de programación lineal entera, modificar un modelo dado
+para incorporar una nueva condición, y analizar conceptualmente el efecto de un
+cambio en el modelo. No se incluyen respuestas.
+
+\medskip
+\noindent\textbf{Temas cubiertos:}
+\begin{enumerate}[label=\arabic*.,leftmargin=2em,itemsep=1pt]
+  \item Programación lineal: modelado, poliedros y geometría.
+  \item Programación lineal entera: relajación lineal, desigualdades válidas,
+  cortes y \emph{branch and bound}.
+  \item Restricciones de modelado: lógica proposicional, \emph{big-M},
+  linealizaciones.
+  \item Problemas de \emph{lot sizing}.
+  \item Problemas de \emph{staffing} y de asignación.
+  \item Problemas de \emph{facility location}.
+  \item Diseño de \emph{fixtures} deportivos.
+  \item Ejercicios integradores: \emph{scheduling} y modelos sobre grafos.
+\end{enumerate}
+
+%=====================================================================
+\section{Programación lineal: modelado, poliedros y geometría}
+%=====================================================================
+
+\ejercicio{1.1}
+Una fábrica de bebidas produce tres variedades de gaseosa a partir de dos
+insumos: jarabe y agua gasificada. Cada 1000 litros de la variedad $A$ requiere
+120 litros de jarabe y deja un margen de USD 85; la variedad $B$ requiere 95
+litros de jarabe y deja USD 70; la variedad $C$ requiere 150 litros de jarabe y
+deja USD 100. Disponemos de 9000 litros de jarabe por semana y de una capacidad
+de embotellado de 50\,000 litros semanales en total.
+\begin{enumerate}
+  \item Formular un modelo de programación lineal para maximizar el margen
+  semanal.
+  \item Agregar la condición de que la producción conjunta de $B$ y $C$ no
+  supere el 60\,\% de la producción total. Mostrar explícitamente cómo se
+  linealiza esa condición.
+  \item Agregar la condición de que, si se produce la variedad $C$, se deba
+  pagar un costo fijo semanal de USD 400 por la habilitación de la línea
+  correspondiente. ¿Sigue siendo un modelo de programación lineal?
+  \item Generalizar el modelo del primer punto a $n$ variedades, dándoles
+  nombres adecuados a los conjuntos y los parámetros.
+\end{enumerate}
+
+\ejercicio{1.2}
+Consideremos el poliedro $P \subseteq \R^2$ definido por las desigualdades
+\[
+x_1 + 2x_2 \le 8, \qquad 3x_1 + x_2 \le 9, \qquad x_1 \ge 0, \qquad x_2 \ge 0 .
+\]
+\begin{enumerate}
+  \item Graficar $P$ e identificar todos sus vértices.
+  \item Resolver gráficamente $\max\{x_1 + 3x_2 : x \in P\}$ y
+  $\max\{3x_1 + x_2 : x \in P\}$. ¿En qué caso la solución óptima es única?
+  \item Enunciar el teorema de Minkowski y explicar por qué justifica que el
+  método Simplex recorra únicamente vértices.
+  \item Dar un ejemplo de función objetivo para la cual el problema sobre $P$
+  tenga infinitas soluciones óptimas, y otro ejemplo de poliedro (no acotado)
+  sobre el cual un problema de maximización no tenga óptimo finito.
+\end{enumerate}
+
+\ejercicio{1.3}
+Consideremos un grafo dirigido con nodos $\{1,\dots,6\}$, nodo origen $s = 1$,
+nodo destino $t = 6$ y arcos con las siguientes capacidades:
+$1\!\to\!2$: 8, $1\!\to\!3$: 10, $3\!\to\!2$: 3, $2\!\to\!4$: 2, $2\!\to\!5$: 7,
+$3\!\to\!5$: 12, $5\!\to\!4$: 4, $4\!\to\!6$: 10, $5\!\to\!6$: 8.
+\begin{enumerate}
+  \item Plantear un modelo de programación lineal para calcular el flujo máximo
+  entre $s$ y $t$ respetando las capacidades. \emph{Pista:} incluir una variable
+  por cada arco.
+  \item ¿Hace falta pedir que las variables sean enteras para obtener una
+  solución entera? Justificar.
+  \item ¿Cómo se modifica el modelo si además cada arco tiene un costo por
+  unidad de flujo y queremos enviar exactamente 10 unidades a costo mínimo?
+\end{enumerate}
+
+\ejercicio{1.4}
+Un avión tiene tres compartimientos de carga, con capacidades de 12, 18 y 10
+toneladas y volúmenes máximos de 700, 900 y 500 m$^3$ respectivamente. Tenemos
+un conjunto $Q$ de pedidos; de cada pedido $q \in Q$ conocemos su peso total
+$w_q$, su volumen total $v_q$ y su \emph{profit} por tonelada $p_q$. Se puede
+aceptar cualquier fracción de un pedido, y el peso, el volumen y el
+\emph{profit} son proporcionales a la fracción aceptada.
+\begin{enumerate}
+  \item Formular un modelo de programación lineal para decidir qué fracción de
+  cada pedido aceptar y en qué compartimiento ubicarla, maximizando el
+  \emph{profit} total.
+  \item Agregar restricciones para que el porcentaje utilizado de la capacidad
+  de peso sea el mismo en los tres compartimientos (estabilidad del avión).
+  \item ¿Cómo cambia el modelo si los pedidos no se pueden fraccionar?
+  ¿Sigue siendo un problema de programación lineal?
+\end{enumerate}
+
+%=====================================================================
+\section{Programación lineal entera: relajación, cortes y branch and bound}
+%=====================================================================
+
+\ejercicio{2.1}
+Consideremos el problema
+\[
+\max \{\, x_1 + 2x_2 \;:\; 5x_1 + 6x_2 \le 30,\ -6x_1 + 7x_2 \le 19,\
+2x_2 \ge 1,\ x_1, x_2 \in \Z_+ \,\}.
+\]
+\begin{enumerate}
+  \item Graficar la relajación lineal y marcar todos los puntos enteros
+  factibles.
+  \item Resolver gráficamente la relajación lineal. ¿Es entero el óptimo?
+  ¿Qué información aporta el valor óptimo de la relajación sobre el valor
+  óptimo del problema entero?
+  \item Proponer una desigualdad válida que corte el óptimo de la relajación.
+  ¿Es necesario que una desigualdad válida tenga coeficientes enteros?
+  \item Explicar por qué redondear el óptimo de la relajación no es, en general,
+  una estrategia correcta.
+\end{enumerate}
+
+\ejercicio{2.2}
+Sea $Q = \{\, x \in \{0,1\}^n : \sum_{i=1}^{n} s_i x_i \le b \,\}$ con
+$s_i > 0$ para todo $i$ y $b > 0$.
+\begin{enumerate}
+  \item Definir qué es un \emph{cubrimiento} (\emph{cover}) y demostrar que, si
+  $K$ es un cubrimiento, entonces $\sum_{i \in K} x_i \le |K| - 1$ es una
+  desigualdad válida para $Q$.
+  \item Mostrar que si $K \subset K'$ son ambos cubrimientos, entonces la
+  desigualdad asociada a $K$ implica la asociada a $K'$. ¿Qué consecuencia tiene
+  esto a la hora de decidir qué cortes agregar al modelo?
+  \item Explicar por qué no conviene agregar de entrada todas las desigualdades
+  de cubrimiento. ¿Qué alternativa se usa en la práctica?
+  \item Con $n = 5$, $s = (7, 6, 5, 4, 3)$ y $b = 12$, listar todos los
+  cubrimientos minimales y escribir sus desigualdades.
+\end{enumerate}
+
+\ejercicio{2.3}
+Consideremos el modelo de conjunto independiente máximo sobre un grafo
+$G = (V,E)$:
+\[
+\max \sum_{i \in V} x_i \quad \text{sujeto a} \quad x_i + x_j \le 1 \ \
+\forall\, ij \in E, \qquad x_i \in \{0,1\} \ \ \forall\, i \in V .
+\]
+\begin{enumerate}
+  \item Mostrar que la relajación lineal de este modelo siempre admite la
+  solución $x_i = 1/2$ para todo $i \in V$. ¿Qué cota da esa solución? ¿Qué tan
+  mala puede ser esa cota respecto del óptimo entero?
+  \item Demostrar que si $K \subseteq V$ es una clique de $G$, entonces
+  $\sum_{i \in K} x_i \le 1$ es una desigualdad válida.
+  \item Explicar por qué la desigualdad de clique mejora la relajación lineal
+  respecto de las restricciones por arista, usando como ejemplo un triángulo.
+  \item Escribir un modelo de programación lineal entera para el problema de
+  clique máxima, y adaptarlo al caso en que cada vértice $v$ tiene un peso
+  $w_v$ y al caso en que cada arista $e$ tiene un peso $w_e$.
+\end{enumerate}
+
+\ejercicio{2.4}
+Responder brevemente, justificando en cada caso.
+\begin{enumerate}
+  \item ¿Qué es la relajación lineal de un modelo de programación lineal entera
+  y qué tipo de cota proporciona en un problema de minimización?
+  \item En el algoritmo de \emph{branch and bound}, ¿qué rol cumplen la cota
+  dual y la mejor solución entera hallada hasta el momento ($x^{BEST}$)?
+  ¿Cuándo se puede podar un subproblema?
+  \item ¿Qué diferencia hay entre una desigualdad válida y un corte?
+  \item Dos formulaciones distintas de un mismo problema tienen exactamente las
+  mismas soluciones enteras factibles. ¿Pueden tener distinta dificultad
+  computacional? Justificar en términos de la cápsula convexa de los puntos
+  enteros.
+  \item ¿Por qué se dice que, si conociéramos la descripción por desigualdades
+  de la cápsula convexa de los puntos enteros factibles, alcanzaría con resolver
+  un problema de programación lineal?
+\end{enumerate}
+
+%=====================================================================
+\section{Restricciones de modelado}
+%=====================================================================
+
+\ejercicio{3.1}
+Para cada una de las siguientes fórmulas de lógica proposicional, encontrar un
+conjunto de restricciones lineales sobre variables binarias cuyas soluciones
+factibles se correspondan con los valores que la hacen verdadera. Pueden ser
+necesarias variables auxiliares.
+\begin{enumerate}[label=\alph*),itemsep=1pt]
+  \item $x \veebar y$ (disyunción exclusiva)
+  \item $x \Rightarrow \neg y$
+  \item $(x \wedge y) \Rightarrow z$
+  \item $z \Leftrightarrow (x \vee y)$
+  \item $(x_1 \vee \dots \vee x_n) \Rightarrow (y_1 \wedge \dots \wedge y_m)$
+  \item ``a lo sumo dos de las variables $x_1,\dots,x_n$ son verdaderas''
+  \item ``si $x_1$ es verdadera, entonces al menos tres de
+  $x_2,\dots,x_n$ lo son''
+\end{enumerate}
+
+\ejercicio{3.2}
+Sea $x \in \R_+$ una variable de producción e $y \in \{0,1\}$ una variable que
+indica si la línea está encendida.
+\begin{enumerate}
+  \item Escribir las restricciones que modelan ``$x$ puede ser positiva
+  solamente si $y = 1$'', suponiendo que existe una capacidad máxima $C$.
+  \item Escribir las restricciones que modelan la variable semicontinua
+  $x \in \{0\} \cup [m, C]$.
+  \item Si no hubiera capacidad explícita, ¿qué valor de $M$ usarías en
+  $x \le M y$ en un modelo de \emph{lot sizing} de $n$ períodos? ¿Por qué
+  conviene elegir el $M$ más chico posible?
+  \item Modelar ``$x$ debe ser un múltiplo de $L$ unidades, con a lo sumo $k$
+  lotes''.
+  \item Supongamos que queremos forzar la equivalencia $y = 1 \iff x > 0$.
+  ¿Hace falta agregar la implicación recíproca si el objetivo minimiza un costo
+  positivo asociado a $y$? Justificar.
+\end{enumerate}
+
+\ejercicio{3.3}
+Explicar cómo linealizar cada una de las siguientes situaciones, indicando qué
+variables auxiliares se agregan y por qué la linealización es correcta.
+\begin{enumerate}
+  \item Minimizar $\max_{i \in I} \big( \sum_{j} c_{ij} x_{ij} \big)$.
+  \item Maximizar $\min_{i \in I} \big( \sum_{j} c_{ij} x_{ij} \big)$.
+  \item Minimizar la diferencia entre el mayor y el menor de los valores
+  $\sum_j c_{ij} x_{ij}$, para $i \in I$.
+  \item Minimizar $\sum_{i \in I} \max\{0, f_i(x)\}$, con $f_i$ lineal.
+  \item El producto $z = x \cdot y$ con $x, y \in \{0,1\}$.
+  \item El producto $z = x \cdot y$ con $x \in \{0,1\}$ e $y \in [0, U]$
+  continua.
+\end{enumerate}
+
+\ejercicio{3.4}
+Tenemos un conjunto $I$ de proyectos, cada uno con un beneficio $b_i$ y un costo
+$c_i$, y un presupuesto $B$. Sea $x_i \in \{0,1\}$ la variable que indica si el
+proyecto $i$ se ejecuta. Escribir las restricciones correspondientes a cada una
+de las siguientes condiciones:
+\begin{enumerate}[itemsep=1pt]
+  \item No se pueden ejecutar los cuatro proyectos del conjunto
+  $S = \{1,2,3,4\}$ simultáneamente.
+  \item El proyecto 7 sólo se puede ejecutar si se ejecutan el 2 y el 3.
+  \item Se debe ejecutar exactamente uno de los proyectos 5 y 6.
+  \item Si no se ejecuta ningún proyecto del conjunto $S_1$, entonces se debe
+  ejecutar al menos uno del conjunto $S_2$.
+  \item Si se ejecuta algún proyecto cuyo costo supera los USD 100\,000,
+  entonces se deben ejecutar al menos dos proyectos de costo menor a USD
+  20\,000.
+  \item No se pueden ejecutar más de tres proyectos cuyo beneficio sea inferior
+  al promedio de los $b_i$.
+\end{enumerate}
+
+%=====================================================================
+\section{Problemas de lot sizing}
+%=====================================================================
+
+\ejercicio{4.1}
+Consideremos el modelo clásico de \emph{lot sizing} con un único producto:
+\[
+\min \sum_{t \in T} \big( c_t x_t + a_t s_t \big), \qquad
+s_t = s_{t-1} + x_t - d_t \ \ \forall\, t \in T, \qquad
+s_0 = 0, \qquad x_t, s_t \ge 0 \ \ \forall\, t \in T .
+\]
+\begin{enumerate}
+  \item ¿Cómo se modifica el modelo si estamos obligados a terminar el período
+  $n$ con al menos 150 unidades en stock?
+  \item ¿Cómo se modifica el modelo si tenemos un costo fijo $f_t$ por tener
+  stock en el depósito en el período $t$? Es decir, pagamos $f_t$ si $s_t > 0$,
+  y no lo pagamos si $s_t = 0$.
+  \item Tenemos un stock de seguridad $m$ en cada período, que se puede
+  incumplir pagando una penalidad de $\Pi$ pesos por período incumplido.
+  ¿Cómo se modifica el modelo? ¿Y si la penalidad fuera proporcional a las
+  unidades faltantes?
+  \item ¿Cómo se modifica el modelo si se permite atrasar el cumplimiento de la
+  demanda (\emph{backlogging}), pagando un costo $b_t$ por unidad atrasada en el
+  período $t$? Justificar por qué, en el óptimo, las dos variables que
+  reemplazan a $s_t$ no pueden ser simultáneamente positivas.
+  \item ¿Cómo se modifica el modelo si los costos deben expresarse en valor
+  presente usando una tasa de descuento $r$?
+\end{enumerate}
+
+\ejercicio{4.2}
+Somos fabricantes de cajas de cartón corrugado y nuestro principal insumo es el
+papel. Tenemos tres proveedores (A, B y C), un conjunto $T = \{1,\dots,n\}$ de
+períodos, la demanda $d_t$ de papel en cada período y el precio por tonelada de
+cada proveedor en cada período. Se puede guardar stock de un período al
+siguiente.
+\begin{enumerate}
+  \item Plantear un modelo de programación lineal para determinar cuánto
+  comprarle a cada proveedor en cada período, minimizando el costo total.
+  \item Si no se pudiera guardar stock, ¿tiene sentido plantear un modelo de
+  programación lineal para este problema? Justificar.
+  \item Agregar al modelo una capacidad máxima de almacenamiento.
+  \item Agregar al modelo la condición de que sólo le podamos comprar al
+  proveedor A en a lo sumo cinco períodos, elegidos libremente.
+  \item Agregar al modelo la condición de que en cada período le podamos comprar
+  a lo sumo a un proveedor.
+  \item Cada proveedor exige un pedido mínimo de 5 toneladas por compra.
+  ¿Cómo se agrega esta condición?
+\end{enumerate}
+
+\ejercicio{4.3}
+Un laboratorio fabrica un granel que luego se envasa en blísters, y los blísters
+se agrupan en dos presentaciones finales. Cada blíster consume 10 unidades de
+granel, la presentación ``$\times 10$'' consume 10 blísters y la presentación
+``$\times 20$'' consume 20 blísters. Tenemos $T = \{1,\dots,18\}$ meses y
+demanda mensual estimada de cada uno de los cuatro elementos (granel, blíster y
+las dos presentaciones finales).
+\begin{enumerate}
+  \item Formular un modelo de programación lineal entera mixta que determine
+  cuánto fabricar de cada elemento en cada mes, respetando la estructura del
+  producto y cumpliendo la demanda.
+  \item Agregar la condición de que el granel se fabrique en lotes exactos de
+  500 unidades y los blísters en lotes de al menos 1000 unidades.
+  \item Agregar la condición de que entre dos meses con producción de granel
+  deban pasar al menos tres meses.
+  \item Agregar la condición de que el granel fabricado en un mes se debe
+  blistear en ese mismo mes (es decir, no puede quedar stock de granel).
+  \item Cada elemento se fabrica en una máquina que tiene un pool de $H_{kt}$
+  horas disponibles en el mes $t$, y la unidad del elemento $i$ consume
+  $\tau_i$ horas. Agregar esta restricción.
+\end{enumerate}
+
+\ejercicio{4.4}
+Una empresa planifica la producción de $P$ productos a lo largo de
+$T = \{1,\dots,12\}$ meses, con demanda $d_{it}$, costo unitario $c_{it}$ y
+costo de almacenamiento $h_i$.
+\begin{enumerate}
+  \item Formular el modelo multi-ítem básico.
+  \item Agregar una capacidad conjunta de producción de 300 unidades por mes y
+  una capacidad conjunta de depósito de $S_{\max}$ unidades.
+  \item Se puede tercerizar producción a un costo $g_i$ por unidad, con un tope
+  conjunto de 200 unidades por mes y un pedido mínimo de 20 unidades por
+  producto tercerizado. Agregar esta posibilidad.
+  \item ¿Cuál es la mínima capacidad de depósito que hace factible el problema?
+  Explicar cómo se puede obtener ese valor con un único modelo, sin hacer una
+  búsqueda manual sobre el valor de $S_{\max}$.
+  \item La solución óptima termina el horizonte con stock nulo de todos los
+  productos. Explicar por qué ocurre y proponer dos maneras distintas de
+  corregir este efecto de horizonte.
+\end{enumerate}
+
+%=====================================================================
+\section{Problemas de staffing y de asignación}
+%=====================================================================
+
+\ejercicio{5.1}
+Un banco abre de lunes a viernes de 9 a 18, y conoce la cantidad de cajeros
+$r_h$ que necesita en cada hora $h \in \{9,\dots,17\}$ (donde $h$ indica la hora
+que comienza en $h$ y termina en $h+1$). Hay dos tipos de cajeros: los
+\emph{full-time} trabajan las nueve horas excepto una hora de almuerzo, que el
+banco asigna entre las 12 y las 13 o entre las 13 y las 14, y cobran \$800 por
+hora (incluida la del almuerzo). Los \emph{part-time} trabajan tres horas
+consecutivas y cobran \$500 por hora. El banco no quiere contratar más de cinco
+cajeros \emph{part-time}.
+\begin{enumerate}
+  \item Formular un modelo de programación lineal entera que cubra los
+  requerimientos a costo mínimo. Escribir explícitamente la expresión de la
+  cantidad de \emph{part-time} activos en la hora $h$.
+  \item ¿Cómo se modifica el modelo si cada \emph{part-time} no puede empezar
+  antes de las 11?
+  \item ¿Cómo se modifica el modelo si la cantidad de \emph{full-time} que
+  almuerzan en cada franja no puede diferir en más de dos?
+  \item ¿Qué pasaría si relajáramos la integralidad de las variables? ¿Tendría
+  sentido la solución obtenida?
+\end{enumerate}
+
+\ejercicio{5.2}
+Tenemos que conformar un equipo de trabajo a partir de un conjunto $P$ de
+personas. Para cada persona $i \in P$ conocemos su sueldo $s_i$ y el resultado
+$q_i$ de un test cognitivo. Debemos contratar exactamente 11 personas sin
+superar un presupuesto de USD 50\,000 mensuales, maximizando la suma de los
+resultados de los tests.
+\begin{enumerate}
+  \item Formular el modelo. Verificar que cumple las tres reglas de
+  presentación de modelos vistas en clase: índices ligados a un cuantificador,
+  dominio de las variables especificado, y datos distinguidos de las variables
+  de decisión.
+  \item Agregar un subconjunto $A \subseteq P$ de personas de contratación
+  obligatoria y un conjunto $I \subseteq P \times P$ de pares incompatibles.
+  \item Si se elimina la restricción de presupuesto y se busca maximizar la
+  cantidad de personas contratadas, ¿qué problema clásico se obtiene?
+  \item ¿Qué otros problemas de negocio se pueden representar con el modelo del
+  primer punto?
+\end{enumerate}
+
+\ejercicio{5.3}
+Tenemos un conjunto $P$ de personas y un conjunto $R$ de roles. Para cada
+persona $i$ y cada rol $r$ conocemos si está habilitada ($H_{ir} \in \{0,1\}$) y
+el puntaje $q_{ir}$ que obtendría. Se requieren exactamente $D_r$ personas en el
+rol $r$, cada persona ocupa a lo sumo un rol, y hay un presupuesto $B$ sobre la
+suma de los sueldos $s_i$.
+\begin{enumerate}
+  \item Formular el modelo maximizando el puntaje total.
+  \item Agregar: si la persona $u$ es seleccionada, entonces la persona $v$
+  también debe serlo.
+  \item Agregar: a lo sumo una persona con menos de dos años de experiencia
+  (dato $\mathrm{exp}_i$), y si entra alguna persona con un año de experiencia,
+  entonces deben entrar al menos dos con tres o más años.
+  \item Tres personas $u$, $v$ y $w$ son incompatibles de a pares. Mostrar que
+  la relajación lineal admite $x_u = x_v = x_w = 1/2$ y proponer una desigualdad
+  válida que elimine esa solución.
+  \item ¿Cómo se modifica el modelo si el puntaje de una persona no depende del
+  rol que ocupa? ¿Alguna restricción se vuelve redundante?
+\end{enumerate}
+
+\ejercicio{5.4}
+Estamos a cargo de las operaciones de una aerolínea con base en Aeroparque.
+Tenemos un conjunto $V$ de paquetes de vuelos (cada uno comienza y termina en
+Aeroparque en un mismo día, y tiene un avión asignado) y un conjunto $P$ de
+pilotos. La matriz $M \in \{0,1\}^{|P| \times |V|}$ especifica qué pilotos pueden
+realizar cada paquete.
+\begin{enumerate}
+  \item Formular un modelo de programación lineal entera que maximice la
+  cantidad de paquetes con pilotos asignados, sabiendo que cada paquete requiere
+  dos pilotos compatibles (aunque es aceptable no asignarlos si no es posible),
+  que un piloto no puede trabajar más de cinco días seguidos, que debe tener al
+  menos dos días de descanso cada siete días y al menos cinco días de descanso
+  cada diez días.
+  \item ¿Cómo se modifica el modelo si queremos además equilibrar la carga de
+  trabajo, minimizando la máxima cantidad de paquetes asignados a un mismo
+  piloto?
+  \item ¿Cómo se modifica el modelo si cada paquete tiene una prioridad
+  $\rho_v$ y queremos maximizar la prioridad total cubierta?
+\end{enumerate}
+
+%=====================================================================
+\section{Problemas de facility location}
+%=====================================================================
+
+\ejercicio{6.1}
+Consideremos el modelo de \emph{facility location} con un conjunto $C$ de
+clientes y un conjunto $F$ de \emph{facilities}:
+\[
+\min \sum_{i \in C}\sum_{j \in F} \costo_{ij}\, x_{ij}
+     + \sum_{j \in F} \beta\, y_j, \qquad
+\sum_{j \in F} x_{ij} = 1 \ \ \forall\, i \in C, \qquad
+x_{ij} \le y_j \ \ \forall\, i \in C,\ \forall\, j \in F,
+\]
+con $x_{ij}, y_j \in \{0,1\}$ y $\beta > 0$.
+\begin{enumerate}[itemsep=1pt]
+  \item ¿Qué sucede si se elimina la restricción $x_{ij} \le y_j$?
+  \item La formulación permite que $y_j = 1$ aunque ningún cliente use el
+  \emph{facility} $j$. ¿Es esto un problema? ¿Cambia la respuesta si $\beta$
+  fuera negativo?
+  \item Necesitamos abrir por lo menos cinco \emph{facilities} y que cada uno de
+  ellos tenga al menos dos clientes asignados. Agregar esta condición.
+  \item Los clientes 1, 2 y 3 deben usar tres \emph{facilities} distintos.
+  Agregar esta condición.
+  \item Conocemos el volumen de compras $v_i$ de cada cliente. Agregar la
+  condición de que el volumen total asignado a cada \emph{facility} no supere un
+  umbral $\gamma$, y la de que no se abra un \emph{facility} si el volumen
+  asignado es menor a $\delta$.
+  \item ¿Cómo se modifica el modelo si queremos minimizar el volumen de ventas
+  del \emph{facility} con mayor volumen?
+  \item ¿Cómo se modifica el modelo si cada \emph{facility} $j$ tiene su propio
+  costo de apertura $\beta_j$ y un tope global de presupuesto $B$ para las
+  aperturas?
+\end{enumerate}
+
+\ejercicio{6.2}
+Una empresa produce en una única planta y abastece a 20 clientes mayoristas a
+través de distribuidoras regionales. Hay 6 ubicaciones candidatas. Para cada
+candidata $i$ conocemos la distancia $D_i$ desde la planta, el costo fijo
+mensual $f_i$ de alquiler y, para cada cliente $j$, la distancia $d_{ij}$ desde
+la distribuidora $i$. Por cada cliente asignado a una distribuidora se genera un
+flujo de abastecimiento desde la planta. Ninguna distribuidora puede atender a
+más de 15 clientes, y el presupuesto mensual es $B$.
+\begin{enumerate}
+  \item Formular un modelo de programación lineal entera que minimice los
+  kilómetros totales recorridos (tramo primario más secundario).
+  \item Observar que la restricción $\sum_j x_{ij} \le 15\, y_i$ cumple
+  simultáneamente dos funciones. ¿Cuáles? ¿Qué pasaría con la relajación lineal
+  si en su lugar usáramos $x_{ij} \le y_i$ junto con $\sum_j x_{ij} \le 15$?
+  \item ¿Cómo se modifica el modelo si el costo fijo debe aparecer en la función
+  objetivo en lugar de en una restricción de presupuesto? ¿En qué unidades
+  quedaría la función objetivo y qué problema trae eso?
+  \item Agregar la condición de que no se abran dos distribuidoras ubicadas a
+  menos de 3 km entre sí, sabiendo que conocemos la distancia $\delta_{ii'}$
+  entre cada par de candidatas. ¿Por qué puede ser relevante esta condición?
+\end{enumerate}
+
+\ejercicio{6.3}
+Trabajamos para una empresa de pagos que recibe $M$ transacciones a procesar en
+la nube, y dispone de $N$ servidores. Cada transacción $i$ tiene un tiempo de
+procesamiento $t_i$, y cada servidor $j$ tiene un costo fijo de activación $s_j$
+y un costo variable $c_j$ por unidad de tiempo.
+\begin{enumerate}
+  \item Formular un modelo de programación lineal entera que minimice el costo
+  total de procesamiento.
+  \item ¿Cómo va a ser la solución óptima de esa formulación? ¿Es razonable?
+  \item Las transacciones llegan en \emph{batches} y se dispone de un tiempo
+  máximo $T$ para procesar un \emph{batch} completo. Modificar el modelo.
+  \item ¿Cómo se modifica el modelo si además queremos equilibrar la carga,
+  minimizando el tiempo de procesamiento del servidor más cargado?
+\end{enumerate}
+
+\ejercicio{6.4}
+Debemos ubicar ambulancias en una ciudad. Tenemos un conjunto $L$ de bases
+candidatas y un conjunto $C$ de zonas, con población $p_i$ para cada
+$i \in C$, y la distancia $d_{ij}$ entre la zona $i$ y la base $j$. Decimos que
+la base $j$ \emph{cubre} a la zona $i$ si $d_{ij} \le U$.
+\begin{enumerate}
+  \item Formular un modelo de programación lineal entera para determinar el
+  mínimo número de bases a abrir de modo que todas las zonas queden cubiertas.
+  \item Formular un modelo que, abriendo a lo sumo $M$ bases, maximice la
+  población cubierta.
+  \item ¿Puede el primer modelo ser infactible? ¿Qué se hace en ese caso?
+  \item ¿Cómo se modifica el segundo modelo si queremos además que ninguna zona
+  quede a más de $2U$ de la base más cercana?
+\end{enumerate}
+
+%=====================================================================
+\section{Diseño de fixtures deportivos}
+%=====================================================================
+
+\ejercicio{7.1}
+Consideremos el modelo de \emph{fixture} con $E = \{1,\dots,n\}$ equipos ($n$
+par), $F = \{1,\dots,2n-2\}$ fechas y variables binarias $x_{ijf}$ que indican
+si el equipo $i$ juega de local contra el equipo $j$ en la fecha $f$, con las
+restricciones
+\[
+\sum_{f \in F} x_{ijf} = 1 \ \ \forall\, i \ne j, \qquad
+\sum_{j \in E} \big( x_{ijf} + x_{jif} \big) = 1 \ \ \forall\, i \in E,\
+\forall\, f \in F .
+\]
+\begin{enumerate}[itemsep=1pt]
+  \item Escribir la expresión que indica si el equipo $i$ juega de local en la
+  fecha $f$, y la que indica si enfrenta al equipo $j$ en la fecha $f$ sin
+  importar la localía.
+  \item Agregar una restricción para que el equipo 3 tenga un patrón perfecto.
+  \item Agregar una restricción para que el equipo 1 no juegue más de tres
+  partidos consecutivos de visitante.
+  \item Sea $EF = \{1,\dots,5\}$ el conjunto de equipos fuertes. Agregar una
+  restricción para que ningún equipo juegue en fechas consecutivas contra dos
+  equipos fuertes.
+  \item Sea $I$ el conjunto de equipos que juegan copas internacionales y, para
+  cada $i \in I$, sea $L_i$ el conjunto de equipos que están a más de una hora
+  de avión de $i$. Agregar una restricción para evitar que $i$ juegue dos
+  partidos consecutivos de visitante contra equipos de $L_i$ en las primeras 12
+  fechas.
+  \item Supongamos que agregamos la función objetivo
+  $\min \sum_{j \in E} \sum_{f \in F} (x_{1jf} + x_{j1f})$.
+  ¿Qué expresa? ¿Tiene sentido para este modelo?
+  \item Agregar una función objetivo que maximice la cantidad de partidos
+  atractivos (conjunto $A \subseteq E \times E$) programados en las últimas
+  cuatro fechas, y otra que los pondere dándole más peso a las fechas más
+  tardías.
+\end{enumerate}
+
+\ejercicio{7.2}
+Una federación organiza un torneo cerrado de ajedrez con un número par $N \ge 6$
+de jugadores, formato todos contra todos a una sola rueda ($N-1$ fechas). La
+variable binaria $x_{ijt}$ indica que el jugador $i$ juega con blancas contra
+$j$ en la fecha $t$.
+\begin{enumerate}
+  \item Escribir las restricciones de todos contra todos y de un partido por
+  jugador por fecha. Observar la diferencia con el modelo de \emph{double
+  round-robin}.
+  \item Agregar: cada jugador debe disputar la misma cantidad de partidas con
+  blancas y con negras, con una diferencia máxima de una partida.
+  \item Agregar: ningún jugador puede jugar más de tres partidas consecutivas
+  con negras.
+  \item Agregar: dos jugadores destacados sólo pueden enfrentarse en las dos
+  últimas fechas.
+  \item Cada encuentro tiene un puntaje de calidad esperada $w_{ij} \ge 0$.
+  Escribir una función objetivo que maximice la calidad de las partidas
+  disputadas en dos fechas determinadas $T_{fd} \subset T$.
+\end{enumerate}
+
+\ejercicio{7.3}
+Sobre \emph{breaks} y patrones de localía.
+\begin{enumerate}
+  \item Definir qué es un \emph{break} y escribir las variables y restricciones
+  que permiten minimizar la cantidad total de \emph{breaks} de un
+  \emph{fixture}.
+  \item Explicar por qué, dada la función objetivo elegida, alcanza con una sola
+  desigualdad por variable de \emph{break}, y por qué esas variables pueden
+  declararse continuas.
+  \item Demostrar que a lo sumo dos equipos pueden tener patrón perfecto.
+  \item Sea $P$ un conjunto de patrones de localía y sea $z_{ip}$ la variable
+  binaria que indica si el equipo $i$ usa el patrón $p$. Escribir las
+  restricciones que asignan exactamente un patrón a cada equipo y las que ligan
+  los patrones con las variables $x_{ijf}$, usando el conjunto $H(f)$ de
+  patrones que juegan de local en la fecha $f$.
+  \item Explicar la estrategia de resolución en etapas (generación de patrones,
+  selección de patrones, resolución del \emph{fixture}) y qué se hace cuando la
+  última etapa resulta infactible. Escribir el corte que se agrega al modelo de
+  selección a partir de un subconjunto minimal no factible $S$ de asignaciones
+  patrón--equipo, y comparar su forma con la de una desigualdad de cubrimiento.
+\end{enumerate}
+
+\ejercicio{7.4}
+Las eliminatorias sudamericanas para un mundial las juegan 10 equipos, todos
+contra todos ida y vuelta, con 3 puntos por partido ganado y 1 por empate. Los
+seis primeros clasifican.
+\begin{enumerate}
+  \item Diseñar un modelo de programación lineal entera que, asignando todos los
+  resultados posibles antes de jugada la primera fecha, determine la máxima
+  cantidad de puntos con la que el equipo 1 puede \emph{no} clasificar.
+  \item Explicar por qué la respuesta a la pregunta ``¿con cuántos puntos tiene
+  el equipo 1 garantizada su clasificación?'' es el valor óptimo más uno.
+  \item ¿Cómo se modifica el modelo si se desempata por diferencia de gol y
+  queremos una garantía que no dependa del desempate?
+  \item ¿Hace falta modelar el \emph{fixture} (qué partido se juega en qué
+  fecha) para responder esta pregunta? Justificar.
+\end{enumerate}
+
+%=====================================================================
+\section{Ejercicios integradores}
+%=====================================================================
+
+\ejercicio{8.1}
+Tenemos un conjunto $T$ de tareas a programar en una máquina que trabaja en
+forma continua y procesa una tarea a la vez, sin interrupciones. Conocemos la
+duración $d_i$ y la fecha de entrega $e_i$ de cada tarea.
+\begin{enumerate}
+  \item Escribir un modelo de programación lineal entera mixta que minimice la
+  suma de las demoras. \emph{Pista:} usar una variable continua $p_i$ de inicio
+  y una binaria $y_{ij}$ para el orden relativo de cada par de tareas.
+  \item ¿Son necesarias las variables $y$? ¿Y si el objetivo fuera minimizar el
+  \emph{makespan}?
+  \item ¿Es necesario resolver este problema con programación lineal entera, o
+  existe un algoritmo polinomial? Justificar.
+  \item ¿Cómo se modifica el modelo si cada tarea tiene además una fecha de
+  inicio más temprana posible?
+\end{enumerate}
+
+\ejercicio{8.2}
+Consideremos el mismo problema que en el ejercicio anterior, pero con un
+conjunto $M$ de $k > 1$ máquinas idénticas.
+\begin{enumerate}
+  \item Escribir un modelo de programación lineal entera mixta.
+  \emph{Pista:} introducir una variable binaria $z_{iu}$ por cada tarea $i$ y
+  cada máquina $u$.
+  \item ¿Cómo se modifica el modelo si la duración depende de la máquina?
+  \item ¿Cómo se modifica el modelo si tenemos un digrafo $G = (T, A)$ de
+  precedencias entre las tareas?
+  \item ¿Qué valor de \emph{big-M} conviene usar en las restricciones de no
+  superposición? Relacionar la elección con la calidad de la relajación lineal.
+\end{enumerate}
+
+\ejercicio{8.3}
+Dado un grafo $G = (V, E)$:
+\begin{enumerate}
+  \item Escribir un modelo de programación lineal entera para el problema de
+  conjunto dominante mínimo (un conjunto $D \subseteq V$ tal que todo vértice
+  está en $D$ o es vecino de algún vértice de $D$).
+  \item ¿Cómo cambia el modelo si además pedimos que $D$ sea una clique?
+  ¿Siempre tiene solución ese problema?
+  \item Escribir un modelo para el problema de coloreo de $G$ con la mínima
+  cantidad de colores. \emph{Pista:} usar variables $x_{vk}$ que indiquen si el
+  vértice $v$ recibe el color $k$, y variables $w_k$ que indiquen si el color
+  $k$ se usa.
+  \item El modelo del punto anterior tiene muchas soluciones equivalentes
+  (permutaciones de los colores). ¿Por qué es un problema para el
+  \emph{solver}? Proponer restricciones que rompan esa simetría.
+\end{enumerate}
+
+\ejercicio{8.4}
+Consideremos nuevamente la aerolínea del ejercicio 5.4, pero ahora para asignar
+aviones a paquetes de vuelos. Tenemos un conjunto $V$ de paquetes y un conjunto
+$A$ de aviones. Cada paquete está compuesto por una secuencia de vuelos, con la
+cantidad de asientos vendidos en cada uno, y cada avión tiene una cantidad de
+asientos disponibles. Si el avión asignado a un paquete tiene menos asientos que
+los vendidos en alguno de sus vuelos, se debe hacer un \emph{bump} de los
+pasajeros sobrantes.
+\begin{enumerate}
+  \item Escribir un modelo de programación lineal entera para minimizar la
+  cantidad de \emph{bumped passengers}, sabiendo que cada paquete recibe cero o
+  un avión (si no recibe ninguno, todos sus pasajeros son \emph{bumped}), que
+  dos paquetes que se superponen en el tiempo no pueden recibir el mismo avión,
+  y que cada avión debe tener un día de descanso cada 45 días.
+  \item ¿Cómo se calcula, en función de los datos, la cantidad de
+  \emph{bumped passengers} de un paquete al que se le asigna un avión dado?
+  ¿Hace falta una variable para eso?
+  \item ¿Cómo se modifica el modelo si el costo de un \emph{bump} depende del
+  vuelo?
+\end{enumerate}
+
+\ejercicio{8.5}
+Preguntas conceptuales de integración. Responder brevemente y con justificación.
+\begin{enumerate}[itemsep=1pt]
+  \item En un modelo de \emph{facility location} con costo de apertura
+  $\beta > 0$, ¿qué sucede con las soluciones óptimas si $\beta$ pasa a ser
+  negativo?
+  \item ¿Por qué el problema de \emph{lot sizing} sin costos fijos se puede
+  resolver con programación lineal, y por qué agregar costos fijos cambia
+  sustancialmente la dificultad del problema?
+  \item En un modelo de \emph{fixture} sin función objetivo, ¿qué tipo de
+  problema estamos resolviendo? ¿Qué implicancias tiene esto para la estrategia
+  de resolución?
+  \item ¿Qué significa ``fijar características de la solución en lugar de fijar
+  decisiones concretas''? Dar un ejemplo de cada tema de la materia.
+  \item Mencionar tres estrategias distintas para atacar en la práctica un
+  problema NP-completo, y explicar en cuál de ellas se encuadra el uso de un
+  \emph{solver} de programación lineal entera.
+\end{enumerate}
+
+\end{document}
