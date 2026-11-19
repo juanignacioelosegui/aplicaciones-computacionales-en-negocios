@@ -1,0 +1,37 @@
+% Preámbulo compartido para los modelos de parcial ACN
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage[margin=2.3cm]{geometry}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{array}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Aplicaciones Computacionales en Negocios --- UTDT}
+\rhead{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% Encabezado tipo examen
+\newcommand{\encabezado}[1]{%
+  \begin{center}
+    {\Large\bfseries Examen parcial}\\[2pt]
+    {\large Aplicaciones Computacionales en Negocios --- UTDT}\\[2pt]
+    {\normalsize #1}\\[8pt]
+  \end{center}
+  \noindent\fbox{\parbox{\linewidth}{\centering\bfseries RESPONDER EXCLUSIVAMENTE DEBAJO DEL ESPACIO PROVISTO BAJO CADA PREGUNTA}}
+  \vspace{6pt}
+
+  \noindent Nombre y apellido: \underline{\hspace{7cm}} \hfill Legajo: \underline{\hspace{3.5cm}}
+  \vspace{6pt}
+  \hrule
+  \vspace{10pt}
+}
+
+% Puntaje en negrita
+\newcommand{\pts}[1]{\textbf{[#1 puntos]}\ }
+
+% Espacio de respuesta
+\newcommand{\espacio}[1]{\vspace{#1}}

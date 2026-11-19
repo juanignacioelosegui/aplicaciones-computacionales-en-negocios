@@ -1,0 +1,47 @@
+\documentclass[11pt]{article}
+\input{preambulo}
+
+\begin{document}
+\encabezado{Modelo 3}
+
+% ------------------------------------------------------------------
+\noindent\textbf{1)} Una empresa opera dos parques eólicos, Norte y Sur. La velocidad regional del viento en el día $i$ sigue el modelo con reversión a la media estacional
+\[
+S_{i+1} = S_i + \kappa\,(\theta(t_i) - S_i)\,\Delta + \sigma\sqrt{\Delta}\,Z_i, \qquad \theta(t_i) = 6 + 2\cos(2\pi i / 365)
+\]
+con $\Delta = 1/365$ y $Z_i$ shocks normales estándar independientes entre días.
+
+\medskip
+\pts{10} ¿Qué rol cumple cada parámetro ($\kappa$, $\theta$, $\sigma$)? ¿Cómo es el gráfico de la evolución temporal de $S$ si $\sigma = 0$? Dibujalo esquemáticamente para un año.
+
+\espacio{4.5cm}
+
+\pts{15} La diferencia de viento entre ambos molinos arranca en cero y evoluciona como
+\[
+D_{i+1} = D_i - \beta\,D_i\,\Delta + \gamma\sqrt{\Delta}\,W_i, \qquad D_0 = 0
+\]
+con $W_i$ shocks normales estándar, independientes de los $Z_i$. Explicá el comportamiento de $D$ para distintos valores de $\beta$. ¿Cuál es su distribución de largo plazo?
+
+\espacio{4.5cm}
+
+% ------------------------------------------------------------------
+\noindent\textbf{2)} Suponé que tenés disponible una función para generar variables uniformes $[0,1]$ y otra para generar variables normales estándar.
+
+\medskip
+\pts{25} Describí de manera precisa (pseudocódigo y palabras) un algoritmo para simular \emph{simultáneamente} un camino de $S$ (viento regional) y un camino de $D$ (diferencia entre molinos) durante un año completo ($i = 0, \dots, 365$), a partir de las ecuaciones del punto 1. A partir de $S$ y $D$, ¿cómo obtenés la velocidad en cada molino individual?
+
+\espacio{6.5cm}
+
+% ------------------------------------------------------------------
+\noindent\textbf{3)} Cada molino puede romperse por viento excesivo. La probabilidad de que el molino se rompa en el día $i$, si estaba activo el día anterior, es $0.25\, S_i^2\, \Delta$. Si se rompe, ese día no produce y se repara ese mismo día a un costo fijo. El ingreso diario es $1000 \cdot S_i$ dólares si el molino está activo.
+
+\medskip
+\pts{25} Describí con precisión (pseudocódigo y palabras) cómo simular, sobre un año, la evolución conjunta del viento, las roturas y la acumulación de cashflows de un molino. Explicá cómo incorporás la decisión de rotura día a día usando la función de uniformes.
+
+\espacio{6.5cm}
+
+\pts{15} A partir de un número grande de caminos simulados, describí cómo estimar el ingreso neto anual esperado del molino y su error de estimación. Si querés reducir ese error a la décima parte, ¿cuántos caminos más necesitás? Justificá.
+
+\espacio{4.5cm}
+
+\end{document}
