@@ -3,8 +3,6 @@ TP2 - Punto 2: se agrega un limite de produccion total de 300 unidades/mes.
 
 Reutiliza el modelo del punto 1 agregando una sola familia de restricciones:
     sum_i 10 * y_{it} <= 300   para todo mes t
-
-Uso: python punto2.py
 """
 
 import pandas as pd

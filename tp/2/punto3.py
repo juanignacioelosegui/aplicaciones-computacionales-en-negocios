@@ -7,8 +7,6 @@ del producto i en el mes t, entera) y:
     balance:   s_{i,t-1} + 10 y_{it} + w_{it} - d_{it} = s_{it}
     limite:    sum_i w_{it} <= 200                    para todo t
     objetivo:  + 540 * sum w_{it}
-
-Uso: python punto3.py
 """
 
 import pandas as pd

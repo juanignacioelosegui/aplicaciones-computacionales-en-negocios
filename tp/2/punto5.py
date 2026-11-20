@@ -9,8 +9,6 @@ se minimiza el costo (optimizacion lexicografica) para obtener el plan.
 Se resuelve sobre el modelo completo (punto 4) y, como referencia, sobre los de
 los puntos 1 y 3. Para el punto 1 el valor se verifica ademas con un calculo
 analitico del stock minimo por producto.
-
-Uso: python punto5.py
 """
 
 import pandas as pd

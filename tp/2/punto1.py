@@ -7,8 +7,6 @@ Minimiza el costo total de produccion sujeto a:
   - capacidad total de deposito de 900 unidades,
   - stock inicial nulo,
   - satisfaccion de toda la demanda.
-
-Uso: python punto1.py
 """
 
 import pandas as pd

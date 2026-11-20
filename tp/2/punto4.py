@@ -6,8 +6,6 @@ Se agrega una binaria u_{it} (1 si se terceriza el producto i en el mes t):
     w_{it} >= 20  * u_{it}
     w_{it} <= 200 * u_{it}
 de modo que w_{it} = 0 o bien 20 <= w_{it} <= 200.
-
-Uso: python punto4.py
 """
 
 import pulp
