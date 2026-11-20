@@ -9,7 +9,6 @@
 \geometry{margin=2.5cm}
 
 \input{resultados}
-\input{resultados_p5}
 
 \title{Aplicaciones Computacionales en Negocios\\
 \large Trabajo Práctico 2 --- Modelo de \emph{lot sizing}}
@@ -19,17 +18,7 @@
 \begin{document}
 \maketitle
 
-\section{Descripción del problema}
-
-Se debe planificar la producción mensual de $n=5$ productos ($A,\dots,E$) a lo
-largo de $T=24$ meses. La demanda
-$d_{it}$ de cada producto $i$ en cada mes $t$ se consigue de \texttt{datos.xlsx} y debe cumplirse en su totalidad para cada mes. La
-producción de cada producto se realiza en lotes de $L=10$ unidades, con un
-máximo de $C=120$ unidades por producto y por mes. El depósito admite, a lo sumo,
-$D=900$ unidades de stock entre todos los productos. El stock inicial es nulo y
-el costo de producción es $c=\$370$ por unidad, sin costos de almacenamiento.
-
-\section{Modelo de programación lineal entera mixta}
+\section*{Punto 1: modelo de programación lineal entera mixta}
 
 \subsection*{Conjuntos y parámetros}
 
@@ -101,19 +90,18 @@ la producción en múltiplos de $10$.
   \item [\eqref{eq:nonneg}] No negatividad de cualquier producto en cualquier mes. Trivial.
 \end{description}
 
-\section{Resolución}
+\subsection*{Resolución}
 
-El modelo se implementó en Python con la biblioteca \texttt{PuLP} y se resolvió
-con el solver HiGHS (archivo \texttt{punto1.py}, la demanda se lee de
-\texttt{datos.xlsx}). Usamos HiGHS en lugar de CBC, el solver por defecto de
-PuLP, porque CBC no logra cerrar el gap de optimalidad en algunas instancias del
-punto~5. El solver alcanza el óptimo:
+El modelo se escribió en Zimpl (archivo \texttt{punto1.zpl}, que lee la demanda
+de \texttt{demanda.txt}) y se resolvió con SCIP~10.1 (\texttt{scip -f
+punto1.zpl}). Lo mismo vale para todos los puntos: cada uno tiene su modelo
+\texttt{puntoN.zpl}. SCIP alcanza el óptimo:
 
 \[
   z^{\star} = \$\,\costoOptimo
 \]
 
-\section{Punto 2: límite de 300 unidades por mes}
+\section*{Punto 2: límite de 300 unidades por mes}
 
 El modelo es el mismo del punto 1 más una única familia de restricciones, que
 acota la producción total mensual sumada sobre todos los productos:
@@ -127,7 +115,7 @@ Son 24 restricciones nuevas; no hacen falta variables adicionales. Notar que
 por mes.
 
 \paragraph{¿Se puede cumplir con la demanda total?} No: el modelo es
-\textbf{infactible} (así lo reporta el solver, archivo \texttt{punto2.py}). La
+\textbf{infactible} (así lo reporta SCIP, archivo \texttt{punto2.zpl}). La
 razón se ve sin necesidad de resolverlo. Como el stock inicial es nulo, la
 producción acumulada hasta el mes $t$ no puede superar $300\,t$, y debe alcanzar
 para cubrir la demanda acumulada:
@@ -145,7 +133,7 @@ el modelo sólo tiene sentido si se relaja el problema --- permitiendo demanda
 insatisfecha (con un costo de faltante) o agregando capacidad externa, que es
 justamente lo que introduce el punto 3 con la tercerización.
 
-\section{Punto 3: tercerización de hasta 200 unidades por mes}
+\section*{Punto 3: tercerización de hasta 200 unidades por mes}
 
 Sobre el modelo del punto 2 agregamos una variable entera por producto y mes,
 \[
@@ -170,12 +158,12 @@ lotes de 10 unidades, porque el enunciado no lo pide. El modelo queda:
 \end{align}
 Cambian el objetivo, que suma el costo de tercerizar, y el balance, donde las
 unidades tercerizadas entran al stock igual que las propias; además se agrega
-el límite mensual de tercerización (archivo \texttt{punto3.py}). Con una
+el límite mensual de tercerización (archivo \texttt{punto3.zpl}). Con una
 capacidad total de 500 unidades por mes alcanza para cubrir la demanda
 acumulada en todo momento, y el modelo resulta factible:
 \[
-  z^{\star}_3 = \$\,3.128.900, \qquad
-  6530 \text{ unidades propias} + 1320 \text{ tercerizadas}.
+  z^{\star}_3 = \$\,\costoPuntoTres, \qquad
+  \propiasPuntoTres \text{ unidades propias} + \tercPuntoTres \text{ tercerizadas}.
 \]
 
 \paragraph{Estructura del óptimo.} Como toda la demanda se debe cubrir y el
@@ -198,7 +186,26 @@ muchos planes óptimos alternativos. El valor de 1320 se explica así:
 El depósito es el que fuerza la tercerización: si fuera más grande, se podría
 adelantar más producción propia (ver el punto 5).
 
-\section{Punto 4: mínimo de 20 unidades por pedido tercerizado}
+\paragraph{Una restricción redundante para SCIP.} Por el balance, la
+producción propia acumulada hasta el mes $t$ es
+$s_{it} + \sum_{\tau \le t} (d_{i\tau} - w_{i\tau})$, y por la lotificación es
+múltiplo de $L$. Desde el punto 3 la hacemos explícita con una variable entera
+auxiliar $k_{it}$ (los lotes propios acumulados):
+\begin{equation}
+  s_{it} + \sum_{\tau \le t} \bigl(d_{i\tau} - w_{i\tau}\bigr) = L\,k_{it},
+  \qquad k_{it} \in \mathbb{Z}_{\ge 0},
+  \qquad \forall i \in P,\ \forall t \in T .
+  \label{eq:acumulado}
+\end{equation}
+La restricción no cambia las soluciones enteras ($k_{it} = \sum_{\tau\le t}
+y_{i\tau}$), pero fortalece al modelo. Sin ella, la relajación lineal no
+\emph{ve} que lo tercerizado de cada producto tiene que compensar la paridad de
+los lotes, y en algunas instancias del punto~5 SCIP encuentra el óptimo pero no
+logra probarlo (la cota dual queda trabada a 5 unidades tercerizadas del
+óptimo, aun después de 10 minutos). Con \eqref{eq:acumulado} esas instancias se
+resuelven en segundos.
+
+\section*{Punto 4: mínimo de 20 unidades por pedido tercerizado}
 
 Agregamos una variable binaria $u_{it}$, que vale 1 si se terceriza el producto
 $i$ en el mes $t$, y las restricciones
@@ -210,10 +217,10 @@ $i$ en el mes $t$, y las restricciones
 Si $u_{it}=0$ no se terceriza nada; si $u_{it}=1$ se tercerizan entre 20 y 200
 unidades. La cota superior $W=200$ funciona como ``$M$'' y es ajustada, porque
 ningún producto puede superar el límite mensual conjunto (archivo
-\texttt{punto4.py}).
+\texttt{punto4.zpl}).
 
 \paragraph{¿Cómo cambia el costo?} \textbf{No cambia}: $z^{\star}_4 =
-\$\,3.128.900 = z^{\star}_3$. En el punto 3 el solver usaba pedidos chicos (de 5
+\$\,\costoPuntoCuatro = z^{\star}_3$. En el punto 3 el solver usaba pedidos chicos (de 5
 unidades) para ajustar los residuos de la lotificación, pero, como sólo importa
 el total tercerizado, esos pedidos se pueden reagrupar en pedidos de al menos 20
 unidades sin tercerizar más. Cambia el plan, no el costo. La tabla muestra uno
@@ -221,14 +228,14 @@ de los planes óptimos:
 
 \begin{center}
 \small
-\input{tabla_terc_p4}
+\tablaTercCuatro
 \end{center}
 
 La restricción sí tiene costo cuando el depósito es más chico: con la
 capacidad mínima del punto 5 ($D=\dmincuatro$), el costo es de
 \$\,\costoDmintres{} sin el mínimo de 20 y de \$\,\costoDmincuatro{} con él.
 
-\section{Punto 5: capacidad mínima del depósito}
+\section*{Punto 5: capacidad mínima del depósito}
 
 \paragraph{Sin búsqueda binaria.} Sí, se puede. Convertimos la capacidad del
 depósito en una variable de decisión $D \ge 0$, reemplazamos
@@ -238,9 +245,16 @@ depósito en una variable de decisión $D \ge 0$, reemplazamos
 \]
 y cambiamos el objetivo por $\min D$. El valor óptimo $D^{\star}$ es, por
 definición, la menor capacidad con la que el problema tiene solución factible,
-y se obtiene resolviendo un único MILP. Después, en una segunda etapa, fijamos
-$D = D^{\star}$ y minimizamos el costo para obtener el plan más barato con ese
-depósito (optimización lexicográfica). Archivo \texttt{punto5.py}.
+y se obtiene resolviendo un único MILP (archivo \texttt{punto5.zpl}). Después,
+en una segunda etapa, resolvemos el modelo del punto~4 con $D = D^{\star}$ para
+obtener el plan más barato con ese depósito (optimización lexicográfica).
+
+En Zimpl, los parámetros del modelo (por ejemplo la capacidad del depósito
+\texttt{capDep}) se pueden cambiar sin editar el archivo, con la opción
+\texttt{-D} de Zimpl. El script \texttt{correr.py} usa esto para encadenar las
+dos etapas, verificar que con $D^{\star}-5$ el problema es infactible y armar
+la tabla de costos según la capacidad. Toda la optimización la hace SCIP: el
+script sólo lo ejecuta y lee los archivos de solución.
 
 \paragraph{Resultado.} Para el modelo completo (punto 4; el del punto 3 da lo
 mismo):
@@ -259,7 +273,7 @@ producción propia y hay que tercerizar más:
 
 \begin{center}
 \small
-\input{tabla_curva_p5}
+\tablaCurvaCinco
 \end{center}
 
 Entre 750 y 1100 unidades, cada 50 unidades menos de depósito cuestan
@@ -268,15 +282,23 @@ $540-370=170$ pesos de diferencia cada una.
 
 \paragraph{Referencia: modelo del punto 1.} Con el mismo procedimiento sobre el
 modelo original (sin límite mensual conjunto ni tercerización) se obtiene
-$D^{\star} = \dminuno$, que se alcanza en \mesdminuno{} y no aumenta el costo
-(\$\,\costoDminuno{}). Lo verificamos con un cálculo analítico: sin límite
-conjunto los productos son independientes, y el stock mínimo de cada uno en cada
-mes se calcula hacia atrás, redondeado al múltiplo que impone la lotificación.
+$D^{\star} = \dminuno$, y achicar el depósito hasta ese valor no aumenta el
+costo (\$\,\costoDminuno{}). Sin límite conjunto los productos son
+independientes, y $D^{\star}$ es el stock que hace falta acumular antes de la
+temporada alta, cuando la demanda de un producto supera las 120 unidades
+mensuales que se pueden fabricar.
 
 \section*{Archivos}
 
-\texttt{punto1.py} a \texttt{punto5.py} (cada uno reutiliza el modelo del
-anterior), \texttt{datos.xlsx} y \texttt{requirements.txt}. Para ejecutar:
-\texttt{pip install -r requirements.txt} y luego \texttt{python puntoN.py}.
+\begin{itemize}[itemsep=1pt]
+  \item \texttt{punto1.zpl} a \texttt{punto5.zpl}: modelos en Zimpl. Cada uno
+    se resuelve con \texttt{scip -f puntoN.zpl}.
+  \item \texttt{demanda.txt}: demanda por producto y mes (transcripción de
+    \texttt{datos.xlsx}).
+  \item \texttt{correr.py}: ejecuta SCIP sobre todos los modelos (incluidas las
+    dos etapas del punto~5) y escribe \texttt{resultados.tex}, con los números
+    y las tablas que usa este informe. Sólo usa la biblioteca estándar de
+    Python: \texttt{python correr.py}.
+\end{itemize}
 
 \end{document}

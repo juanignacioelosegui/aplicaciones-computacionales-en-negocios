@@ -4,3 +4,6 @@
 *.fls
 *.fdb_latexmk
 *.out
+__pycache__/
+salidas/
+*.synctex.gz
