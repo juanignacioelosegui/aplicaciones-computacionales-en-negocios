@@ -10,8 +10,7 @@ Uso: python punto2.py
 import pandas as pd
 import pulp
 
-from punto1 import (CAPACIDAD_DEPOSITO, COSTO_UNITARIO, LOTES_MAX, TAMANIO_LOTE,
-                    construir_modelo, leer_demanda)
+from punto1 import SOLVER, construir_modelo, leer_demanda
 
 LIMITE_MENSUAL = 300  # unidades/mes entre todos los productos
 
@@ -47,5 +46,5 @@ if __name__ == "__main__":
 
     m, d = construir_modelo(demanda)
     agregar_limite_mensual(m, d)
-    m.solve(pulp.PULP_CBC_CMD(msg=False))
+    m.solve(SOLVER)
     print(f"\nEstado del modelo del punto 2: {pulp.LpStatus[m.status]}")

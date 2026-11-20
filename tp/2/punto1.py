@@ -20,6 +20,10 @@ TAMANIO_LOTE = 10         # unidades por lote
 LOTES_MAX = 12            # 120 unidades/mes => 12 lotes
 CAPACIDAD_DEPOSITO = 900  # unidades totales en stock
 
+# HiGHS resuelve todas las instancias del TP en segundos; CBC (el solver por
+# defecto de PuLP) no logra cerrar el gap en algunas del punto 5.
+SOLVER = pulp.HiGHS(msg=False)
+
 
 def leer_demanda(archivo=ARCHIVO_DATOS):
     df = pd.read_excel(archivo)
@@ -62,7 +66,7 @@ def construir_modelo(demanda):
 
 
 def resolver(m, d):
-    m.solve(pulp.PULP_CBC_CMD(msg=False))
+    m.solve(SOLVER)
     estado = pulp.LpStatus[m.status]
     print(f"Estado: {estado}")
     if estado != "Optimal":

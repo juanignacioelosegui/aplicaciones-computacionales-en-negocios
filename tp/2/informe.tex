@@ -9,9 +9,10 @@
 \geometry{margin=2.5cm}
 
 \input{resultados}
+\input{resultados_p5}
 
 \title{Aplicaciones Computacionales en Negocios\\
-\large Trabajo Práctico 2 --- Punto 1: modelo de \emph{lot sizing}}
+\large Trabajo Práctico 2 --- Modelo de \emph{lot sizing}}
 \author{}
 \date{}
 
@@ -103,8 +104,10 @@ la producción en múltiplos de $10$.
 \section{Resolución}
 
 El modelo se implementó en Python con la biblioteca \texttt{PuLP} y se resolvió
-con el solver CBC (archivo \texttt{punto1.py}, la demanda se lee de
-\texttt{datos.xlsx}). El solver alcanza el óptimo:
+con el solver HiGHS (archivo \texttt{punto1.py}, la demanda se lee de
+\texttt{datos.xlsx}). Usamos HiGHS en lugar de CBC, el solver por defecto de
+PuLP, porque CBC no logra cerrar el gap de optimalidad en algunas instancias del
+punto~5. El solver alcanza el óptimo:
 
 \[
   z^{\star} = \$\,\costoOptimo
@@ -141,5 +144,139 @@ unidades}. Con este límite es imposible satisfacer toda la demanda, de modo que
 el modelo sólo tiene sentido si se relaja el problema --- permitiendo demanda
 insatisfecha (con un costo de faltante) o agregando capacidad externa, que es
 justamente lo que introduce el punto 3 con la tercerización.
+
+\section{Punto 3: tercerización de hasta 200 unidades por mes}
+
+Sobre el modelo del punto 2 agregamos una variable entera por producto y mes,
+\[
+  w_{it} \in \mathbb{Z}_{\ge 0} \qquad \text{unidades del producto } i
+  \text{ tercerizadas en el mes } t,
+\]
+y los parámetros $c^{T} = 540$ (costo por unidad tercerizada) y $W = 200$
+(máximo tercerizable por mes). No exigimos que la tercerización respete los
+lotes de 10 unidades, porque el enunciado no lo pide. El modelo queda:
+\begin{align}
+  \min\quad & \sum_{i\in P}\sum_{t\in T} \bigl(c\,L\,y_{it} + c^{T} w_{it}\bigr)
+  \label{eq:obj3}\\
+  \text{s.a.}\quad
+  & s_{i,t-1} + L\,y_{it} + w_{it} - d_{it} = s_{it},
+  && \forall i \in P,\ \forall t \in T
+  \label{eq:balance3}\\
+  & \sum_{i \in P} L\,y_{it} \le 300, \qquad \sum_{i \in P} w_{it} \le W,
+  && \forall t \in T
+  \label{eq:limites3}\\
+  & \eqref{eq:inicial},\ \eqref{eq:deposito},\ \eqref{eq:capacidad},\
+    \eqref{eq:nonneg}, \quad w_{it} \in \mathbb{Z}_{\ge 0}. \notag
+\end{align}
+Cambian el objetivo, que suma el costo de tercerizar, y el balance, donde las
+unidades tercerizadas entran al stock igual que las propias; además se agrega
+el límite mensual de tercerización (archivo \texttt{punto3.py}). Con una
+capacidad total de 500 unidades por mes alcanza para cubrir la demanda
+acumulada en todo momento, y el modelo resulta factible:
+\[
+  z^{\star}_3 = \$\,3.128.900, \qquad
+  6530 \text{ unidades propias} + 1320 \text{ tercerizadas}.
+\]
+
+\paragraph{Estructura del óptimo.} Como toda la demanda se debe cubrir y el
+stock no tiene costo, el costo total es
+$370\cdot 7850 + (540-370)\sum_{i,t} w_{it} + 370 \sum_i s_{i,24}$. Por lo tanto,
+minimizar el costo equivale a \emph{minimizar las unidades tercerizadas} (sin
+sobrante al final). Cuándo y qué producto se terceriza da lo mismo, así que hay
+muchos planes óptimos alternativos. El valor de 1320 se explica así:
+\begin{itemize}[itemsep=1pt]
+  \item Hasta septiembre de 2027 la demanda acumulada es de 3440 unidades y la
+    producción propia máxima es de $9\times300 = 2700$, de modo que hay que
+    tercerizar al menos 740 unidades en 2027.
+  \item A la temporada alta de 2028 (junio a septiembre, 2665 unidades) se
+    llega con a lo sumo 900 unidades en stock (el depósito) y se producen 1200
+    propias, de modo que hay que tercerizar al menos 565 más.
+  \item Las 15 unidades restantes se deben a la lotificación: con lotes de 10 y
+    demandas múltiplos de 5, la producción propia no siempre puede ajustarse
+    exactamente a la demanda.
+\end{itemize}
+El depósito es el que fuerza la tercerización: si fuera más grande, se podría
+adelantar más producción propia (ver el punto 5).
+
+\section{Punto 4: mínimo de 20 unidades por pedido tercerizado}
+
+Agregamos una variable binaria $u_{it}$, que vale 1 si se terceriza el producto
+$i$ en el mes $t$, y las restricciones
+\begin{equation}
+  20\,u_{it} \;\le\; w_{it} \;\le\; W\,u_{it}, \qquad \forall i \in P,\
+  \forall t \in T .
+  \label{eq:min20}
+\end{equation}
+Si $u_{it}=0$ no se terceriza nada; si $u_{it}=1$ se tercerizan entre 20 y 200
+unidades. La cota superior $W=200$ funciona como ``$M$'' y es ajustada, porque
+ningún producto puede superar el límite mensual conjunto (archivo
+\texttt{punto4.py}).
+
+\paragraph{¿Cómo cambia el costo?} \textbf{No cambia}: $z^{\star}_4 =
+\$\,3.128.900 = z^{\star}_3$. En el punto 3 el solver usaba pedidos chicos (de 5
+unidades) para ajustar los residuos de la lotificación, pero, como sólo importa
+el total tercerizado, esos pedidos se pueden reagrupar en pedidos de al menos 20
+unidades sin tercerizar más. Cambia el plan, no el costo. La tabla muestra uno
+de los planes óptimos:
+
+\begin{center}
+\small
+\input{tabla_terc_p4}
+\end{center}
+
+La restricción sí tiene costo cuando el depósito es más chico: con la
+capacidad mínima del punto 5 ($D=\dmincuatro$), el costo es de
+\$\,\costoDmintres{} sin el mínimo de 20 y de \$\,\costoDmincuatro{} con él.
+
+\section{Punto 5: capacidad mínima del depósito}
+
+\paragraph{Sin búsqueda binaria.} Sí, se puede. Convertimos la capacidad del
+depósito en una variable de decisión $D \ge 0$, reemplazamos
+\eqref{eq:deposito} por
+\[
+  \sum_{i \in P} s_{it} \le D, \qquad \forall t \in T,
+\]
+y cambiamos el objetivo por $\min D$. El valor óptimo $D^{\star}$ es, por
+definición, la menor capacidad con la que el problema tiene solución factible,
+y se obtiene resolviendo un único MILP. Después, en una segunda etapa, fijamos
+$D = D^{\star}$ y minimizamos el costo para obtener el plan más barato con ese
+depósito (optimización lexicográfica). Archivo \texttt{punto5.py}.
+
+\paragraph{Resultado.} Para el modelo completo (punto 4; el del punto 3 da lo
+mismo):
+\[
+  D^{\star} = \dmincuatro \text{ unidades},
+\]
+y con $D = \dmincuatro - 5$ el problema es infactible. El valor se puede
+verificar a mano: la capacidad total es de $300 + 200 = 500$ unidades por mes y
+en julio, agosto y septiembre la demanda es de 735, 850 y 620. Razonando hacia
+atrás, el stock al cierre de agosto debe ser de al menos $620-500 = 120$, el de
+julio de $120 + 850 - 500 = 470$ y el de junio de $470 + 735 - 500 = 705$. El
+cuello de botella es el stock al cierre de junio.
+
+Con el depósito mínimo el costo sube, porque se puede adelantar menos
+producción propia y hay que tercerizar más:
+
+\begin{center}
+\small
+\input{tabla_curva_p5}
+\end{center}
+
+Entre 750 y 1100 unidades, cada 50 unidades menos de depósito cuestan
+\$\,8.500 más: son 50 unidades que pasan de producirse a tercerizarse, con
+$540-370=170$ pesos de diferencia cada una.
+
+\paragraph{Referencia: modelo del punto 1.} Con el mismo procedimiento sobre el
+modelo original (sin límite mensual conjunto ni tercerización) se obtiene
+$D^{\star} = \dminuno$, que se alcanza en \mesdminuno{} y no aumenta el costo
+(\$\,\costoDminuno{}). Lo verificamos con un cálculo analítico: sin límite
+conjunto los productos son independientes, y el stock mínimo de cada uno en cada
+mes se calcula hacia atrás, redondeado al múltiplo que impone la lotificación.
+
+\section*{Archivos}
+
+\texttt{punto1.py} a \texttt{punto5.py} (cada uno reutiliza el modelo del
+anterior), \texttt{datos.xlsx} y \texttt{requirements.txt}. Para ejecutar:
+\texttt{pip install -r requirements.txt} y luego \texttt{python puntoN.py}.
 
 \end{document}
