@@ -1,0 +1,144 @@
+\documentclass[11pt,a4paper]{article}
+\input{preambulo}
+
+\begin{document}
+\encabezado{4}
+
+%======================================================================
+\ejercicio{1}
+Consideremos el siguiente modelo de \emph{lot sizing} con un único producto, en
+el que se permite atrasar el cumplimiento de la demanda (\emph{backlogging}).
+Tenemos un conjunto $T = \{1,\dots,n\}$ de períodos; para cada $t \in T$ tenemos
+la demanda $d_t \in \R_+$, el costo unitario de producción $c_t \in \R_+$, el
+costo unitario de almacenamiento $a_t \in \R_+$ y el costo $b_t \in \R_+$ por
+cada unidad de demanda atrasada al final del período $t$. La variable
+$x_t \in \R_+$ representa la cantidad fabricada en el período $t$, la variable
+$s_t \in \R_+$ el stock al final del período $t$, y la variable $r_t \in \R_+$ la
+demanda acumulada que todavía no fue atendida al final del período $t$:
+
+\begin{align}
+\min \quad & \sum_{t \in T} \big( c_t\, x_t + a_t\, s_t + b_t\, r_t \big) \\
+s_t - r_t &= s_{t-1} - r_{t-1} + x_t - d_t && \forall\, t \in T \\
+x_t,\ s_t,\ r_t &\ge 0 && \forall\, t \in T
+\end{align}
+
+con $s_0 = r_0 = 0$.
+
+\begin{enumerate}
+  \item Explicar por qué, si $a_t + b_t > 0$ para todo $t \in T$, en ninguna
+  solución óptima puede suceder que $s_t > 0$ y $r_t > 0$ al mismo tiempo.
+  ¿Qué sucede con las soluciones óptimas si $b_t = 0$ para todo $t \in T$?
+  ¿Qué restricción hay que agregar para garantizar que toda la demanda quede
+  atendida al final del horizonte?
+
+  \item Supongamos que encender la línea en el período $t$ tiene un costo fijo
+  $f_t \in \R_+$, y que no hay una capacidad de producción explícita. ¿Cómo se
+  modifica el modelo? Proponer un valor concreto para la constante $M$ de la
+  restricción que liga la producción con el encendido de la línea. ¿Por qué el
+  valor que se suele usar en el modelo \emph{sin} backlogging ya no es
+  correcto? ¿Por qué conviene que $M$ sea lo más chico posible?
+
+  \item Agregar al modelo del punto anterior una restricción para que ninguna
+  unidad de demanda se atienda con más de un período de atraso (suponiendo que
+  la demanda atrasada se atiende en orden de llegada). Agregar además una
+  restricción para que haya demanda atrasada en a lo sumo tres períodos de todo
+  el horizonte.
+
+  \item Supongamos ahora que, además del costo fijo $f_t$, se paga un costo de
+  arranque $g \in \R_+$ cada vez que la línea se enciende en un período $t$
+  habiendo estado apagada en el período $t-1$ (la línea está apagada en el
+  período 0). ¿Cómo se agrega este costo al modelo? ¿Hace falta que las
+  variables nuevas sean binarias? Justificar.
+\end{enumerate}
+
+\newpage
+%======================================================================
+\ejercicio{2}
+Estamos a cargo de la dotación de un \emph{call center} que atiende las 24
+horas. Sea $H = \{0, 1, \dots, 23\}$ el conjunto de las franjas horarias de un
+día (la franja $h$ empieza a la hora $h$ y termina a la hora $h+1$), y para cada
+$h \in H$ conocemos la cantidad mínima $r_h \in \Z_+$ de operadores que deben
+estar trabajando en esa franja. La planificación se repite todos los días, de
+modo que un turno que empieza a las 22 continúa en las primeras horas del día
+siguiente. Hay dos tipos de operadores:
+
+\begin{itemize}
+  \item Los operadores \emph{full-time} trabajan 8 horas consecutivas y cobran
+  $c^F$ pesos por turno.
+  \item Los operadores \emph{part-time} trabajan 4 horas consecutivas y cobran
+  $c^P$ pesos por turno.
+  \item Cada turno (de cualquiera de los dos tipos) puede empezar al comienzo de
+  cualquier franja $h \in H$.
+  \item Los turnos que incluyen alguna franja entre las 0 y las 6 (es decir, las
+  franjas $0, \dots, 5$) tienen un adicional nocturno de $\nu$ pesos por
+  operador, sin importar el tipo de turno.
+\end{itemize}
+
+\begin{puntos}
+  \item Formular un modelo de programación lineal entera para determinar
+  cuántos operadores de cada tipo comienzan su turno en cada franja, de modo
+  tal de cubrir los requerimientos a costo mínimo. \emph{Pista:} usar variables
+  enteras $F_h$ y $P_h$ que representen la cantidad de operadores full-time y
+  part-time que comienzan su turno en la franja $h$. Escribir explícitamente la
+  expresión de la cantidad de operadores activos en la franja $h$, teniendo en
+  cuenta el carácter cíclico del día.
+
+  \item Agregar al modelo las siguientes condiciones: (i) la cantidad total de
+  operadores part-time no puede superar la mitad de la cantidad total de
+  operadores full-time; (ii) ningún operador part-time puede comenzar su turno
+  entre las 0 y las 6.
+
+  \item Para simplificar la gestión, la empresa quiere usar a lo sumo cinco
+  horarios distintos de inicio para los turnos full-time y, si en un horario
+  comienzan operadores full-time, deben comenzar al menos tres. Agregar estas
+  condiciones al modelo. Proponer un valor concreto de la constante $M$ que se
+  utilice, en función de los datos.
+
+  \item Supongamos que resolvemos la relajación lineal del modelo del primer
+  punto. ¿Qué relación hay entre su valor óptimo y el valor óptimo del modelo
+  entero? Si redondeamos hacia arriba todas las variables de la solución de la
+  relajación, ¿obtenemos una solución factible? ¿Y una solución óptima? ¿Siguen
+  valiendo estas respuestas para el modelo del punto anterior? Justificar.
+\end{puntos}
+
+\newpage
+%======================================================================
+\ejercicio{3}
+Debemos decidir dónde ubicar las bases de ambulancias de una ciudad. Tenemos un
+conjunto $L$ de bases candidatas y un conjunto $C$ de zonas. Para cada zona
+$i \in C$ conocemos su población $p_i \in \Z_+$ y, para cada base $j \in L$, el
+tiempo de viaje $t_{ij} \in \R_+$ entre la base $j$ y la zona $i$. Abrir la base
+$j$ tiene un costo $f_j \in \R_+$. Decimos que la base $j$ \emph{cubre} a la zona
+$i$ si $t_{ij} \le U$, donde $U$ es un dato (por ejemplo, 10 minutos), y
+llamamos $N_i = \{ j \in L : t_{ij} \le U \}$ al conjunto de bases que cubren a
+la zona $i$.
+
+\begin{puntos}
+  \item Formular un modelo de programación lineal entera para determinar qué
+  bases abrir, de modo tal que todas las zonas queden cubiertas y se minimice el
+  costo total de apertura. ¿Puede este modelo ser infactible? ¿Cómo se detecta
+  esta situación a partir de los datos, sin resolver el modelo?
+
+  \item Supongamos ahora que tenemos un presupuesto $B$ y que, en lugar de
+  exigir que todas las zonas queden cubiertas, queremos maximizar la población
+  cubierta. Formular el modelo correspondiente. \emph{Pista:} agregar una
+  variable $z_i$ por cada zona $i \in C$ que indique si la zona queda cubierta.
+  Explicar por qué alcanza con una sola desigualdad por zona para ligar $z_i$
+  con las bases abiertas.
+
+  \item Disponemos de $K$ ambulancias en total, y cada base abierta $j$ puede
+  alojar entre 1 y $k_j$ ambulancias. Las zonas del conjunto $C' \subseteq C$
+  (las de mayor población) deben quedar cubiertas por al menos dos ambulancias,
+  aunque estén en la misma base. Modificar el modelo del punto anterior para
+  incorporar estas condiciones.
+
+  \item Consideremos una instancia del modelo del primer punto con tres zonas
+  $\{1,2,3\}$ y tres bases $\{A,B,C\}$, todas con costo 1, donde
+  $N_1 = \{A, B\}$, $N_2 = \{B, C\}$ y $N_3 = \{A, C\}$. Mostrar que la
+  relajación lineal tiene una solución con valor $3/2$, mientras que el óptimo
+  entero vale 2. Proponer una desigualdad válida que elimine esa solución
+  fraccionaria, y explicar cómo se usaría este tipo de desigualdades dentro de un
+  algoritmo de \emph{branch and cut}.
+\end{puntos}
+
+\end{document}

@@ -1,0 +1,152 @@
+\documentclass[11pt,a4paper]{article}
+\input{preambulo}
+
+\begin{document}
+\encabezado{5}
+
+%======================================================================
+\ejercicio{1}
+Una empresa de pagos debe procesar un \emph{batch} de transacciones en la
+nube. Sea $A$ el conjunto de transacciones y sea $S$ el
+conjunto de servidores disponibles. Cada transacción $i \in A$ tiene un tiempo
+de procesamiento $t_i \in \R_+$, y cada servidor $j \in S$ tiene un costo fijo de
+activación $s_j \in \R_+$ y un costo variable $c_j \in \R_+$ por unidad de tiempo
+de procesamiento. El \emph{batch} completo debe procesarse en a lo sumo $T$
+unidades de tiempo. Consideremos el siguiente modelo:
+
+\begin{align}
+\min \quad & \sum_{i \in A} \sum_{j \in S} c_j\, t_i\, x_{ij}
+           + \sum_{j \in S} s_j\, y_j \\
+\sum_{j \in S} x_{ij} &= 1 && \forall\, i \in A \\
+\sum_{i \in A} t_i\, x_{ij} &\le T\, y_j && \forall\, j \in S \\
+x_{ij} &\in \{0,1\} && \forall\, i \in A,\ \forall\, j \in S \notag \\
+y_j &\in \{0,1\} && \forall\, j \in S \notag
+\end{align}
+
+donde la variable binaria $x_{ij}$ indica si la transacción $i$ se procesa en el
+servidor $j$, y la variable binaria $y_j$ indica si se activa el servidor $j$.
+
+\begin{enumerate}
+  \item La restricción (3) cumple simultáneamente dos funciones. ¿Cuáles? Si
+  $T$ fuera arbitrariamente grande, ¿cuál sería la solución óptima? ¿Haría
+  falta programación lineal entera para encontrarla?
+
+  \item Mostrar que las desigualdades $x_{ij} \le y_j$ ($i \in A$, $j \in S$)
+  son válidas. ¿Cambia su agregado el conjunto de soluciones enteras factibles?
+  Exhibir una solución de la relajación lineal que las viole y explicar por qué
+  agregarlas puede acelerar la resolución.
+
+  \item Supongamos que todos los servidores son idénticos ($s_j = s$ y $c_j = c$
+  para todo $j \in S$). ¿Por qué esto genera muchas soluciones óptimas
+  equivalentes, y por qué eso perjudica al \emph{branch and bound}? Proponer restricciones que eliminen parte de esa simetría sin
+  eliminar todas las soluciones óptimas.
+
+  \item Supongamos ahora que tenemos un presupuesto $B$ y que queremos
+  minimizar la diferencia de carga entre el servidor activo más cargado y el
+  activo menos cargado (los servidores no activados no intervienen en el
+  mínimo). ¿Cómo se modifica el modelo?
+\end{enumerate}
+
+\newpage
+%======================================================================
+\ejercicio{2}
+Tenemos que diseñar el \emph{fixture} de una liga de vóley con un conjunto
+$E = \{1,\dots,n\}$ de equipos ($n$ es par) que juegan todos contra todos a una
+sola rueda, en un conjunto $F = \{1,\dots,n-1\}$ de fechas. Cada equipo juega
+exactamente un partido por fecha. Para cada par de equipos $i,j \in E$,
+$i \ne j$, y cada fecha $f \in F$, la variable binaria $x_{ijf}$ toma el valor 1
+si el equipo $i$ juega de local contra el equipo $j$ en la fecha $f$.
+
+\begin{puntos}
+  \item Escribir las restricciones básicas del modelo. Observar la diferencia
+  con el modelo de \emph{double round-robin}: ¿qué restricción cambia y por qué?
+  Agregar una restricción para que cada equipo juegue la misma cantidad de
+  partidos de local que de visitante, con una diferencia de a lo sumo un
+  partido.
+
+  \item Agregar restricciones para que (i) ningún equipo juegue tres partidos
+  consecutivos con la misma localía, y (ii) ningún equipo juegue de visitante
+  simultáneamente en la primera y en la última fecha.
+
+  \item En cada fecha se televisa exactamente un partido, que debe ser uno de los
+  partidos atractivos del conjunto $\mathcal{A} \subseteq E \times E$ (no importa
+  la localía). Cada equipo debe aparecer en televisión al menos una vez y a lo
+  sumo tres veces a lo largo del torneo. Agregar las variables y restricciones
+  necesarias para modelar estas condiciones.
+
+  \item Para reducir la dificultad del modelo, se propone resolverlo en etapas a
+  partir de un conjunto $\mathcal{P}$ de patrones de localía. Para cada fecha
+  $f \in F$, sea $H(f) \subseteq \mathcal{P}$ el conjunto de patrones que juegan
+  de local en la fecha $f$, y sea $z_{ip}$ una variable binaria que indica si el
+  equipo $i$ usa el patrón $p$. Escribir las restricciones que asignan un patrón
+  a cada equipo y que ligan los patrones con las variables $x_{ijf}$. Explicar
+  por qué, en un torneo a una sola rueda, dos equipos no pueden usar el mismo
+  patrón, y agregar esta condición. ¿Qué otra condición deben cumplir los
+  patrones elegidos en cada fecha?
+
+  \item Supongamos que, fijada una asignación de patrones a equipos obtenida en
+  la etapa de selección, el modelo del \emph{fixture} resulta infactible, y que
+  identificamos un subconjunto minimal $Q$ de pares (equipo, patrón) que no puede
+  formar parte de ninguna solución factible. Escribir el corte que se agrega al
+  modelo de selección de patrones. ¿Qué similitud tiene con una desigualdad de
+  cubrimiento? ¿Por qué el proceso termina?
+\end{puntos}
+
+\newpage
+%======================================================================
+\ejercicio{3}
+Una fábrica de alfajores planifica su producción mensual para los próximos 18
+meses, $T = \{1,\dots,18\}$. La producción tiene tres niveles: primero se
+fabrica \emph{relleno} (en kilos), luego se fabrican \emph{alfajores} sueltos, y
+finalmente los alfajores se envasan en dos presentaciones: la \emph{caja} de 6
+unidades y el \emph{pack} de 12 unidades. Cada alfajor consume $0.04$ kilos de
+relleno. Llamamos $K = \{\mathrm{rel}, \mathrm{alf}, \mathrm{caja},
+\mathrm{pack}\}$ al conjunto de elementos, y para cada $k \in K$ y cada
+$t \in T$ conocemos la demanda $d_{kt} \in \R_+$ (se puede vender relleno a otras
+fábricas y alfajores sueltos a kioscos), el costo unitario de producción
+$c_{k} \in \R_+$, el costo unitario de almacenamiento $h_k \in \R_+$ y el stock
+inicial $s_{k0}$. La planificación debe respetar las siguientes condiciones:
+
+\begin{itemize}
+  \item El relleno se fabrica en lotes exactos de 200 kilos.
+  \item Si en un mes se fabrican alfajores, se deben fabricar al menos 5000
+  unidades.
+  \item Entre dos meses con producción de relleno deben pasar al menos dos meses
+  sin producción de relleno.
+  \item Cada elemento $k$ tiene un stock de seguridad $m_k$ que se debe mantener
+  al final de cada mes.
+  \item Cada elemento $k$ se fabrica en una máquina $\mu(k) \in U$ (donde $U$ es
+  el conjunto de máquinas), que tiene un pool de $H_{ut}$ horas disponibles en
+  el mes $t$; cada unidad del elemento $k$ consume $\tau_k$ horas de su máquina.
+  Varios elementos pueden compartir una misma máquina.
+\end{itemize}
+
+\begin{puntos}
+  \item Formular un modelo de programación lineal entera mixta para determinar
+  cuánto fabricar de cada elemento en cada mes, minimizando los costos totales
+  de producción y almacenamiento. Prestar especial atención a la restricción de
+  balance de stock: la producción de un elemento consume stock de los elementos
+  del nivel anterior.
+
+  \item El relleno es perecedero y por lo tanto no puede quedar stock de relleno
+  al final de ningún mes (es decir, todo el relleno fabricado en un mes se usa
+  o se vende en ese mismo mes, y suponemos $m_{\mathrm{rel}} = 0$). ¿Cómo se
+  agrega esta condición? Si además no
+  hubiera demanda externa de relleno, ¿qué condición deberían cumplir las
+  cantidades de alfajores fabricadas para que el problema sea factible? ¿Cómo
+  impacta esto en el modelo?
+
+  \item Los alfajores deben pasar un mes en cuarentena por control de calidad
+  antes de poder envasarse o venderse: los alfajores fabricados en el mes $t$
+  recién están disponibles en el mes $t+1$. ¿Cómo se modifica el modelo? ¿Qué
+  condición sobre los stocks iniciales es necesaria para que el problema sea
+  factible en el primer mes?
+
+  \item La gerencia quiere que la carga de las máquinas sea lo más pareja
+  posible a lo largo del año. Modificar la función objetivo para minimizar el
+  máximo, entre todas las máquinas y todos los meses, del porcentaje de horas
+  utilizadas. ¿Qué inconveniente tiene optimizar sólo este objetivo, y cómo se
+  puede combinar con el objetivo de costos original?
+\end{puntos}
+
+\end{document}
